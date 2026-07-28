@@ -157,6 +157,7 @@ model Customer {
   user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   lead      Lead?      @relation(fields: [convertedFromLeadId], references: [id], onDelete: SetNull)
   estimates Estimate[]
+  followUps FollowUp[]
 }
 
 model Estimate {
