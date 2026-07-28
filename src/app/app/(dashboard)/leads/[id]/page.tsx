@@ -148,8 +148,30 @@ export default function LeadDetailPage() {
   }
 
   async function handleConvertToCustomer() {
-    // For now, mark as WON — customer conversion in Phase 4
-    handleStatusChange("WON");
+    try {
+      const res = await fetch("/api/customers/convert", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ leadId: lead!.id }),
+      });
+
+      if (res.ok) {
+        const customer = await res.json();
+        toast({ title: "Lead converted to customer!" });
+        router.push(`/app/customers/${customer.id}`);
+      } else if (res.status === 409) {
+        const err = await res.json();
+        toast({ title: "This lead was already converted", description: "Redirecting to customer..." });
+        if (err.customer) {
+          router.push(`/app/customers/${err.customer.id}`);
+        }
+      } else {
+        const err = await res.json();
+        toast({ title: err.error || "Failed to convert lead", variant: "destructive" });
+      }
+    } catch {
+      toast({ title: "Failed to convert lead", variant: "destructive" });
+    }
   }
 
   if (loading) {
