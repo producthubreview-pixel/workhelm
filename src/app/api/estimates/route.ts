@@ -30,20 +30,20 @@ export async function GET(req: NextRequest) {
 
   const estimates = await db.estimate.findMany({
     where,
-    orderBy: { updatedAt: "desc" },
+    orderBy: { createdAt: "desc" },
     include: {
       customer: {
         select: { id: true, name: true },
       },
-      _count: {
-        select: { followUps: true },
+      followUps: {
+        select: { id: true },
       },
     },
   });
 
-  const result = estimates.map(({ _count, ...e }) => ({
+  const result = estimates.map(({ followUps, ...e }) => ({
     ...e,
-    followUpCount: _count.followUps,
+    followUpCount: followUps.length,
   }));
 
   return NextResponse.json(result);
@@ -57,7 +57,6 @@ export async function POST(req: NextRequest) {
 
   const userId = session.user.id;
   const body = await req.json();
-
   const parsed = estimateFormSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(
