@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { 
   LayoutDashboard, Users, Building2, FileText, Columns3, 
-  Calendar, BarChart3, Settings, Menu, X, LogOut, HardHat 
+  Calendar, BarChart3, Settings, Menu, X, LogOut, HardHat, MessageSquare 
 } from "lucide-react";
 
 const navItems = [
@@ -15,6 +15,7 @@ const navItems = [
   { href: "/app/estimates", label: "Estimates", icon: FileText },
   { href: "/app/pipeline", label: "Pipeline", icon: Columns3 },
   { href: "/app/follow-ups", label: "Follow-Ups", icon: Calendar },
+  { href: "/app/templates", label: "Templates", icon: MessageSquare },
   { href: "/app/reports", label: "Reports", icon: BarChart3 },
   { href: "/app/settings", label: "Settings", icon: Settings },
 ];
