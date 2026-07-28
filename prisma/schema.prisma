@@ -1,0 +1,208 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  ESTIMATE_NEEDED
+  ESTIMATE_SENT
+  FOLLOW_UP
+  WON
+  LOST
+}
+
+enum LeadPriority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum EstimateStatus {
+  DRAFT
+  SENT
+  FOLLOW_UP_DUE
+  ACCEPTED
+  DECLINED
+  EXPIRED
+}
+
+enum FollowUpStatus {
+  OPEN
+  COMPLETED
+  OVERDUE
+}
+
+enum MessageTemplateCategory {
+  NEW_LEAD
+  ESTIMATE_SENT
+  FOLLOW_UP_1
+  FOLLOW_UP_2
+  APPOINTMENT
+  THANK_YOU
+  REVIEW_REQUEST
+}
+
+enum Plan {
+  STARTER
+  PRO
+}
+
+model User {
+  id                  String    @id @default(cuid())
+  name                String?
+  email               String    @unique
+  emailVerified       DateTime?
+  password            String?
+  image               String?
+  businessName        String?
+  phone               String?
+  businessCategory    String?
+  timezone            String?   @default("America/Chicago")
+  plan                Plan      @default(STARTER)
+  stripeCustomerId    String?
+  stripeSubscriptionId String?
+  subscriptionStatus  String?   @default("trialing")
+  trialEndsAt         DateTime?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  accounts        Account[]
+  sessions        Session[]
+  leads           Lead[]
+  customers       Customer[]
+  estimates       Estimate[]
+  followUps       FollowUp[]
+  messageTemplates MessageTemplate[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Lead {
+  id              String      @id @default(cuid())
+  userId          String
+  firstName       String
+  lastName        String?
+  phone           String?
+  email           String?
+  serviceAddress  String?
+  serviceRequested String?
+  estimatedValue  Float?
+  source          String?
+  status          LeadStatus  @default(NEW)
+  priority        LeadPriority @default(MEDIUM)
+  lastContactedAt DateTime?
+  nextFollowUpAt  DateTime?
+  notes           String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  followUps FollowUp[]
+  customer  Customer?
+}
+
+model Customer {
+  id                 String    @id @default(cuid())
+  userId             String
+  name               String
+  phone              String?
+  email              String?
+  serviceAddress     String?
+  notes              String?
+  isArchived         Boolean   @default(false)
+  convertedFromLeadId String?   @unique
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lead      Lead?      @relation(fields: [convertedFromLeadId], references: [id], onDelete: SetNull)
+  estimates Estimate[]
+}
+
+model Estimate {
+  id              String         @id @default(cuid())
+  userId          String
+  customerId      String
+  title           String
+  amount          Float?
+  status          EstimateStatus @default(DRAFT)
+  declinedReason  String?
+  createdAt       DateTime       @default(now())
+  expiresAt       DateTime?
+  nextFollowUpAt  DateTime?
+  notes           String?
+
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  customer  Customer   @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  followUps FollowUp[]
+}
+
+model FollowUp {
+  id          String         @id @default(cuid())
+  userId      String
+  title       String
+  dueAt       DateTime
+  leadId      String?
+  customerId  String?
+  estimateId  String?
+  notes       String?
+  status      FollowUpStatus @default(OPEN)
+  completedAt DateTime?
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lead     Lead?     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  customer Customer? @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  estimate Estimate? @relation(fields: [estimateId], references: [id], onDelete: Cascade)
+}
+
+model MessageTemplate {
+  id       String                  @id @default(cuid())
+  userId   String
+  name     String
+  subject  String
+  body     String
+  category MessageTemplateCategory @default(NEW_LEAD)
+  updatedAt DateTime               @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
