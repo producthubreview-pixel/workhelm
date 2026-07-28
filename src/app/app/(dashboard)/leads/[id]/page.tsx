@@ -243,7 +243,7 @@ export default function LeadDetailPage() {
               <MessageSquare className="h-4 w-4 mr-1" /> Mark Contacted
             </Button>
           )}
-          <Link href="/app/follow-ups/new">
+          <Link href="/app/follow-ups">
             <Button variant="outline" size="sm">
               <Calendar className="h-4 w-4 mr-1" /> Schedule Follow-Up
             </Button>

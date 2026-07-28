@@ -2,51 +2,43 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { followUpFormSchema } from "@/lib/followup-schema";
-import { Prisma } from "@prisma/client";
 
-export async function GET(req: NextRequest) {
+export async function GET(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-  const userId = session.user.id;
-  const { searchParams } = new URL(req.url);
-  const status = searchParams.get("status") || "";
-  const dueDateStart = searchParams.get("dueDateStart") || "";
-  const dueDateEnd = searchParams.get("dueDateEnd") || "";
-
-  const where: Prisma.FollowUpWhereInput = { userId };
-  if (status) {
-    where.status = status as any;
-  }
-  if (dueDateStart || dueDateEnd) {
-    where.dueAt = {};
-    if (dueDateStart) {
-      (where.dueAt as any).gte = new Date(dueDateStart);
-    }
-    if (dueDateEnd) {
-      (where.dueAt as any).lte = new Date(dueDateEnd);
-    }
-  }
-
-  const followUps = await db.followUp.findMany({
-    where,
-    orderBy: { dueAt: "asc" },
+  const { id } = await params;
+  const followUp = await db.followUp.findUnique({
+    where: { id },
     include: {
       lead: { select: { id: true, firstName: true, lastName: true } },
       customer: { select: { id: true, name: true } },
       estimate: { select: { id: true, title: true } },
     },
   });
-  return NextResponse.json(followUps);
+  if (!followUp || followUp.userId !== session.user.id) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+  return NextResponse.json(followUp);
 }
 
-export async function POST(req: NextRequest) {
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-  const userId = session.user.id;
+  const { id } = await params;
+  const followUp = await db.followUp.findUnique({ where: { id } });
+  if (!followUp || followUp.userId !== session.user.id) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
   const body = await req.json();
   const parsed = followUpFormSchema.safeParse(body);
   if (!parsed.success) {
@@ -55,16 +47,15 @@ export async function POST(req: NextRequest) {
       { status: 400 }
     );
   }
-  const followUp = await db.followUp.create({
+  const updated = await db.followUp.update({
+    where: { id },
     data: {
-      userId,
       title: parsed.data.title,
       dueAt: new Date(parsed.data.dueAt),
       leadId: parsed.data.leadId || null,
       customerId: parsed.data.customerId || null,
       estimateId: parsed.data.estimateId || null,
       notes: parsed.data.notes || null,
-      status: "OPEN",
     },
     include: {
       lead: { select: { id: true, firstName: true, lastName: true } },
@@ -72,5 +63,22 @@ export async function POST(req: NextRequest) {
       estimate: { select: { id: true, title: true } },
     },
   });
-  return NextResponse.json(followUp, { status: 201 });
+  return NextResponse.json(updated);
+}
+
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  const { id } = await params;
+  const followUp = await db.followUp.findUnique({ where: { id } });
+  if (!followUp || followUp.userId !== session.user.id) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+  await db.followUp.delete({ where: { id } });
+  return NextResponse.json({ success: true });
 }
