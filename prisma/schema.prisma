@@ -62,6 +62,7 @@ model User {
   image               String?
   businessName        String?
   phone               String?
+  address             String?
   businessCategory    String?
   timezone            String?   @default("America/Chicago")
   plan                Plan      @default(STARTER)

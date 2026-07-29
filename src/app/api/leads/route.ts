@@ -56,6 +56,26 @@ export async function POST(req: NextRequest) {
   }
 
   const userId = session.user.id;
+
+  // Plan limit enforcement: Starter plan max 250 leads
+  const user = await db.user.findUnique({
+    where: { id: userId },
+    select: { plan: true, subscriptionStatus: true },
+  });
+
+  if (user?.plan === "STARTER") {
+    const leadCount = await db.lead.count({ where: { userId } });
+    if (leadCount >= 250) {
+      return NextResponse.json(
+        {
+          error: "You've reached your Starter plan limit of 250 leads. Please upgrade to Pro for unlimited leads.",
+          code: "PLAN_LIMIT",
+        },
+        { status: 403 }
+      );
+    }
+  }
+
   const body = await req.json();
 
   const parsed = leadFormSchema.safeParse(body);
