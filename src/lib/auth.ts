@@ -1,5 +1,4 @@
 import NextAuth from "next-auth";
-import { CredentialsSignin } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { db } from "@/lib/db";
@@ -35,16 +34,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         if (!isValid) return null;
 
-        // Block login if email not verified
-        if (!user.emailVerified) {
-          throw new CredentialsSignin("Please verify your email first. Check your inbox for a verification link.");
-        }
-
+        // Allow login before email verification — app will show a reminder banner
         return {
           id: user.id,
           email: user.email,
           name: user.name,
           image: user.image,
+          emailVerified: user.emailVerified,
         };
       },
     }),
@@ -53,12 +49,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.sub as string;
+        (session.user as any).emailVerified = token.emailVerified;
       }
       return session;
     },
     async jwt({ token, user }) {
       if (user) {
         token.sub = user.id;
+        token.emailVerified = (user as any).emailVerified;
       }
       return token;
     },
