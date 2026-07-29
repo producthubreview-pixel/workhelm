@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { sendEmail, verificationEmailHtml } from "@/lib/email";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
 
@@ -18,7 +19,7 @@ export async function POST(req: NextRequest) {
     });
 
     // Generate verification token
-    const token = crypto.randomBytes(32).toString("hex");
+    const token = crypto.randomUUID();
     const expires = new Date(Date.now() + 1000 * 60 * 60 * 24); // 24 hours
 
     await db.verificationToken.create({
@@ -31,13 +32,11 @@ export async function POST(req: NextRequest) {
 
     const verifyUrl = `${process.env.NEXT_PUBLIC_APP_URL}/verify-email?token=${token}`;
 
-    // Log verification link for now (will use Resend later)
-    console.log(`\n========================================`);
-    console.log(`Email verification link for ${email}:`);
-    console.log(verifyUrl);
-    console.log(`========================================\n`);
+    // Send verification email via Resend
+    const html = verificationEmailHtml(verifyUrl);
+    await sendEmail({ to: email, subject: "Verify your WorkHelm email", html });
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, message: "Check your email for a verification link" });
   } catch (err) {
     console.error("Registration error:", err);
     return NextResponse.json({ error: "Registration failed" }, { status: 500 });
