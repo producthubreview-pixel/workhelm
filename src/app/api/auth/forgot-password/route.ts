@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { sendEmail, resetPasswordEmailHtml } from "@/lib/email";
 import crypto from "crypto";
 
 export async function POST(req: NextRequest) {
@@ -17,7 +18,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Generate reset token
-    const token = crypto.randomBytes(32).toString("hex");
+    const token = crypto.randomUUID();
     const expires = new Date(Date.now() + 1000 * 60 * 60); // 1 hour
 
     // Store in VerificationToken table (reusing for password resets)
@@ -31,11 +32,9 @@ export async function POST(req: NextRequest) {
 
     const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL}/reset-password?token=${token}`;
 
-    // Log the reset link for now (will use Resend later)
-    console.log(`\n========================================`);
-    console.log(`Password reset link for ${email}:`);
-    console.log(resetUrl);
-    console.log(`========================================\n`);
+    // Send reset email via Resend
+    const html = resetPasswordEmailHtml(resetUrl);
+    await sendEmail({ to: email, subject: "Reset your WorkHelm password", html });
 
     return NextResponse.json({ success: true, message: "If an account exists, a reset link has been sent." });
   } catch (err) {

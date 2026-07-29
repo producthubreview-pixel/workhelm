@@ -1,25 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 
-export async function POST(req: NextRequest) {
+export async function GET(req: NextRequest) {
   try {
-    const { token } = await req.json();
+    const token = req.nextUrl.searchParams.get("token");
     if (!token) {
-      return NextResponse.json({ error: "Token is required" }, { status: 400 });
+      return NextResponse.redirect(new URL("/login?error=missing_token", req.url));
     }
 
-    // Find verification token
     const verificationToken = await db.verificationToken.findUnique({
       where: { token },
     });
 
     if (!verificationToken || !verificationToken.identifier.startsWith("verify:")) {
-      return NextResponse.json({ error: "Invalid verification token" }, { status: 400 });
+      return NextResponse.redirect(new URL("/login?error=invalid_token", req.url));
     }
 
     if (verificationToken.expires < new Date()) {
       await db.verificationToken.delete({ where: { token } });
-      return NextResponse.json({ error: "Verification token has expired" }, { status: 400 });
+      return NextResponse.redirect(new URL("/login?error=expired_token", req.url));
     }
 
     const email = verificationToken.identifier.replace("verify:", "");
@@ -33,9 +32,9 @@ export async function POST(req: NextRequest) {
     // Delete the token
     await db.verificationToken.delete({ where: { token } });
 
-    return NextResponse.json({ success: true, message: "Email verified successfully." });
+    return NextResponse.redirect(new URL("/login?verified=true", req.url));
   } catch (err) {
     console.error("Verify email error:", err);
-    return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
+    return NextResponse.redirect(new URL("/login?error=verify_failed", req.url));
   }
 }
