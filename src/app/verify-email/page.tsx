@@ -1,11 +1,12 @@
 import { redirect } from "next/navigation";
 
-export default function VerifyEmailPage({
+export default async function VerifyEmailPage({
   searchParams,
 }: {
-  searchParams: { token?: string };
+  searchParams: Promise<{ token?: string }>;
 }) {
-  const token = searchParams.token;
+  const params = await searchParams;
+  const token = params.token;
 
   if (!token) {
     return (
