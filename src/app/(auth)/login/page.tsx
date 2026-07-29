@@ -43,7 +43,7 @@ function LoginForm() {
     if (result?.error) {
       // Map raw NextAuth error codes to user-friendly messages
       if (result.error === "CredentialsSignin") {
-        setError("Invalid email or password, or your email hasn't been verified yet. Check your inbox.");
+        setError("Invalid email or password.");
       } else {
         setError(result.error);
       }
