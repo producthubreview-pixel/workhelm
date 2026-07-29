@@ -41,10 +41,12 @@ function LoginForm() {
     setSuccessMsg("");
     const result = await signIn("credentials", { email, password, redirect: false });
     if (result?.error) {
-      // Display the raw error string from NextAuth — it passes through
-      // descriptive error types like "CredentialsSignin" (with code) or
-      // specific messages when thrown via CredentialsSignin.
-      setError(result.error);
+      // Map raw NextAuth error codes to user-friendly messages
+      if (result.error === "CredentialsSignin") {
+        setError("Invalid email or password, or your email hasn't been verified yet. Check your inbox.");
+      } else {
+        setError(result.error);
+      }
       setLoading(false);
     } else {
       router.push("/app/today");
