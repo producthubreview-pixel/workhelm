@@ -1,15 +1,16 @@
 "use client";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 const categories = ["Plumbing","HVAC","Electrical","Roofing","Landscaping","General Contracting","Painting","Cleaning","Pest Control","Other"];
 const timezones = ["America/Chicago","America/New_York","America/Denver","America/Los_Angeles","America/Phoenix"];
 
 export default function SignupPage() {
+  const router = useRouter();
   const [form, setForm] = useState({ name:"",businessName:"",email:"",phone:"",password:"",category:"",timezone:"America/Chicago" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [registered, setRegistered] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -19,24 +20,9 @@ export default function SignupPage() {
       const res = await fetch("/api/auth/register", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(form) });
       const data = await res.json();
       if (!res.ok) { throw new Error(data.error || "Signup failed"); }
-      setRegistered(true);
+      router.push("/login?registered=true");
     } catch (err: any) { setError(err.message); }
     finally { setLoading(false); }
-  }
-
-  if (registered) {
-    return (
-      <div className="bg-white p-8 rounded-xl shadow-sm border text-center">
-        <h1 className="text-2xl font-bold text-gray-900 mb-6">Check your email</h1>
-        <div className="bg-green-50 text-green-700 p-4 rounded-lg text-sm mb-4">
-          We&apos;ve sent a verification link to <strong>{form.email}</strong>. Please check your inbox and click the link to verify your account.
-        </div>
-        <p className="text-sm text-gray-500">
-          Didn&apos;t receive it? Check your spam folder or{" "}
-          <Link href="/login" className="text-primary hover:underline">go to sign in</Link>
-        </p>
-      </div>
-    );
   }
 
   return (
