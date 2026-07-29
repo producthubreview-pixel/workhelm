@@ -32,6 +32,7 @@ export async function sendEmail({ to, subject, html }: SendEmailParams): Promise
     return true;
   } catch (err) {
     console.error("Email send failed:", err);
+    console.error("Resend API key prefix:", process.env.RESEND_API_KEY?.substring(0, 8));
     return false;
   }
 }
