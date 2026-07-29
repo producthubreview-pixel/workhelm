@@ -34,7 +34,11 @@ export async function POST(req: NextRequest) {
 
     // Send verification email via Resend
     const html = verificationEmailHtml(verifyUrl);
-    await sendEmail({ to: email, subject: "Verify your WorkHelm email", html });
+    const emailSent = await sendEmail({ to: email, subject: "Verify your WorkHelm email", html });
+
+    if (!emailSent) {
+      console.error(`[REGISTER] Failed to send verification email to ${email}. User created but email not delivered.`);
+    }
 
     return NextResponse.json({ success: true, message: "Check your email for a verification link" });
   } catch (err) {

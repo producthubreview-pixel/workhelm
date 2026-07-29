@@ -1,4 +1,5 @@
 import NextAuth from "next-auth";
+import { CredentialsSignin } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { db } from "@/lib/db";
@@ -36,7 +37,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         // Block login if email not verified
         if (!user.emailVerified) {
-          throw new Error("Please verify your email first. Check your inbox for a verification link.");
+          throw new CredentialsSignin("Please verify your email first. Check your inbox for a verification link.");
         }
 
         return {
