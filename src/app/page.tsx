@@ -31,7 +31,7 @@ export default function LandingPage() {
         </p>
         <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
           <Link href="/signup" className="inline-flex items-center justify-center px-6 py-3 bg-primary text-white font-semibold rounded-lg hover:opacity-90 transition">
-            Start Free Trial <ArrowRight className="ml-2 h-5 w-5" />
+            Get Started Free <ArrowRight className="ml-2 h-5 w-5" />
           </Link>
           <a href="#benefits" className="inline-flex items-center justify-center px-6 py-3 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition">
             See How It Works
@@ -78,13 +78,13 @@ export default function LandingPage() {
               <p className="mt-4 text-4xl font-bold text-gray-900">$29<span className="text-lg font-normal text-gray-500">/mo</span></p>
               <p className="mt-2 text-xs text-gray-500">14-day free trial</p>
               <ul className="mt-6 space-y-3 text-sm text-gray-600 text-left">
-                <li className="flex items-start gap-2"><CheckCircle className="h-5 w-5 text-green-500 shrink-0" /> 1 user</li>
+                <li className="flex items-start gap-2"><CheckCircle className="h-5 w-5 text-green-500 shrink-0" /> 2 users</li>
                 <li className="flex items-start gap-2"><CheckCircle className="h-5 w-5 text-green-500 shrink-0" /> Up to 250 leads</li>
                 <li className="flex items-start gap-2"><CheckCircle className="h-5 w-5 text-green-500 shrink-0" /> Full pipeline & follow-ups</li>
                 <li className="flex items-start gap-2"><CheckCircle className="h-5 w-5 text-green-500 shrink-0" /> Message templates</li>
                 <li className="flex items-start gap-2"><CheckCircle className="h-5 w-5 text-green-500 shrink-0" /> Estimate tracking</li>
               </ul>
-              <Link href="/signup" className="mt-8 block w-full py-3 bg-primary text-white font-semibold rounded-lg hover:opacity-90 transition text-center">Start 14-Day Free Trial</Link>
+              <Link href="/signup" className="mt-8 block w-full py-3 bg-primary text-white font-semibold rounded-lg hover:opacity-90 transition text-center">Try Starter Free for 14 Days</Link>
             </div>
             {/* Pro */}
             <div className="border-2 border-primary rounded-xl p-6 text-center relative">
@@ -98,7 +98,7 @@ export default function LandingPage() {
                 <li className="flex items-start gap-2"><CheckCircle className="h-5 w-5 text-green-500 shrink-0" /> Everything in Starter</li>
                 <li className="flex items-start gap-2"><CheckCircle className="h-5 w-5 text-green-500 shrink-0" /> Priority support</li>
               </ul>
-              <Link href="/signup" className="mt-8 block w-full py-3 bg-primary text-white font-semibold rounded-lg hover:opacity-90 transition text-center">Start 14-Day Free Trial</Link>
+              <Link href="/signup" className="mt-8 block w-full py-3 bg-primary text-white font-semibold rounded-lg hover:opacity-90 transition text-center">Try Pro Free for 14 Days</Link>
             </div>
           </div>
         </div>
@@ -108,9 +108,9 @@ export default function LandingPage() {
       <section className="bg-primary text-white py-20 text-center">
         <div className="max-w-3xl mx-auto px-4">
           <h2 className="text-3xl font-bold">Take Control of Your Follow-Up and Win More Jobs</h2>
-          <p className="mt-4 text-lg opacity-90">Start your 14-day free trial. No credit card required.</p>
+          <p className="mt-4 text-lg opacity-90">Get started for free. No credit card required.</p>
           <Link href="/signup" className="mt-8 inline-flex items-center px-8 py-4 bg-white text-primary font-bold rounded-lg hover:bg-gray-100 transition">
-            Start Free Trial <ArrowRight className="ml-2 h-5 w-5" />
+            Get Started Free <ArrowRight className="ml-2 h-5 w-5" />
           </Link>
         </div>
       </section>
