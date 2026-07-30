@@ -68,25 +68,25 @@ export async function POST(req: NextRequest) {
 
   try {
     const checkoutSession = await stripe.checkout.sessions.create({
-    customer: stripeCustomerId,
-    mode: "subscription",
-    payment_method_types: ["card"],
-    line_items: [
-      {
-        price: resolvedPriceId,
-        quantity: 1,
+      customer: stripeCustomerId,
+      mode: "subscription",
+      payment_method_types: ["card"],
+      line_items: [
+        {
+          price: resolvedPriceId,
+          quantity: 1,
+        },
+      ],
+      subscription_data: {
+        trial_period_days: 14,
+        metadata: { userId, plan },
       },
-    ],
-    subscription_data: {
-      trial_period_days: 14,
+      success_url: `${baseUrl}/app/settings?billing=success`,
+      cancel_url: `${baseUrl}/app/settings?billing=cancelled`,
       metadata: { userId, plan },
-    },
-    success_url: `${baseUrl}/app/settings?billing=success`,
-    cancel_url: `${baseUrl}/app/settings?billing=cancelled`,
-    metadata: { userId, plan },
-  });
+    });
 
-  return NextResponse.json({ url: checkoutSession.url });
+    return NextResponse.json({ url: checkoutSession.url });
   } catch (err: any) {
     console.error("Stripe checkout error:", err);
     return NextResponse.json(

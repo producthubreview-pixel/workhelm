@@ -226,12 +226,12 @@ export default function SettingsPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ plan }),
       });
+      const text = await res.text();
       let data: any;
       try {
-        data = await res.json();
+        data = JSON.parse(text);
       } catch {
-        const text = await res.text();
-        throw new Error(text || `HTTP ${res.status}`);
+        throw new Error(text.slice(0, 200) || `HTTP ${res.status}`);
       }
       if (data.url) {
         window.location.href = data.url;
