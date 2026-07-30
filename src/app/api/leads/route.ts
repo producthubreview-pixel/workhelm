@@ -63,6 +63,19 @@ export async function POST(req: NextRequest) {
     select: { plan: true, subscriptionStatus: true },
   });
 
+  if (user?.plan === "FREE") {
+    const leadCount = await db.lead.count({ where: { userId } });
+    if (leadCount >= 25) {
+      return NextResponse.json(
+        {
+          error: "You've reached your Free plan limit of 25 leads. Please upgrade to Starter or Pro for more leads.",
+          code: "PLAN_LIMIT",
+        },
+        { status: 403 }
+      );
+    }
+  }
+
   if (user?.plan === "STARTER") {
     const leadCount = await db.lead.count({ where: { userId } });
     if (leadCount >= 250) {

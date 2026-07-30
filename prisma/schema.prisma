@@ -49,6 +49,7 @@ enum MessageTemplateCategory {
 }
 
 enum Plan {
+  FREE
   STARTER
   PRO
 }
