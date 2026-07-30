@@ -33,6 +33,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
+ try {
   const user = await db.user.findUnique({
     where: { id: userId },
     select: { email: true, stripeCustomerId: true },
@@ -93,5 +94,12 @@ export async function POST(req: NextRequest) {
       { error: err?.raw?.message || err?.message || "Stripe checkout failed" },
       { status: 500 }
     );
+ } catch (err: any) {
+    console.error("Stripe checkout error:", err);
+    return NextResponse.json(
+      { error: err?.raw?.message || err?.message || "Stripe checkout failed" },
+      { status: 500 }
+    );
   }
+}
 }
