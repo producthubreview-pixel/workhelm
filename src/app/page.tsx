@@ -59,22 +59,39 @@ export default function LandingPage() {
       <section className="py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">Simple, Transparent Pricing</h2>
-          <div className="grid md:grid-cols-2 gap-8 max-w-3xl mx-auto">
-            <div className="border rounded-xl p-8 text-center">
-              <h3 className="text-xl font-bold text-gray-900">Starter</h3>
+          <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+            {/* Free */}
+            <div className="border rounded-xl p-6 text-center">
+              <h3 className="text-lg font-bold text-gray-900">Free</h3>
+              <p className="mt-4 text-4xl font-bold text-gray-900">$0<span className="text-lg font-normal text-gray-500">/mo</span></p>
+              <p className="mt-2 text-xs text-gray-500">No credit card required</p>
+              <ul className="mt-6 space-y-3 text-sm text-gray-600 text-left">
+                <li className="flex items-start gap-2"><CheckCircle className="h-5 w-5 text-green-500 shrink-0" /> 1 user</li>
+                <li className="flex items-start gap-2"><CheckCircle className="h-5 w-5 text-green-500 shrink-0" /> Up to 25 leads</li>
+                <li className="flex items-start gap-2"><CheckCircle className="h-5 w-5 text-green-500 shrink-0" /> Lead & customer management</li>
+              </ul>
+              <Link href="/signup" className="mt-8 block w-full py-3 border-2 border-primary text-primary font-semibold rounded-lg hover:bg-primary hover:text-white transition text-center">Get Started Free</Link>
+            </div>
+            {/* Starter */}
+            <div className="border rounded-xl p-6 text-center">
+              <h3 className="text-lg font-bold text-gray-900">Starter</h3>
               <p className="mt-4 text-4xl font-bold text-gray-900">$29<span className="text-lg font-normal text-gray-500">/mo</span></p>
+              <p className="mt-2 text-xs text-gray-500">14-day free trial</p>
               <ul className="mt-6 space-y-3 text-sm text-gray-600 text-left">
                 <li className="flex items-start gap-2"><CheckCircle className="h-5 w-5 text-green-500 shrink-0" /> 1 user</li>
                 <li className="flex items-start gap-2"><CheckCircle className="h-5 w-5 text-green-500 shrink-0" /> Up to 250 leads</li>
                 <li className="flex items-start gap-2"><CheckCircle className="h-5 w-5 text-green-500 shrink-0" /> Full pipeline & follow-ups</li>
                 <li className="flex items-start gap-2"><CheckCircle className="h-5 w-5 text-green-500 shrink-0" /> Message templates</li>
+                <li className="flex items-start gap-2"><CheckCircle className="h-5 w-5 text-green-500 shrink-0" /> Estimate tracking</li>
               </ul>
               <Link href="/signup" className="mt-8 block w-full py-3 bg-primary text-white font-semibold rounded-lg hover:opacity-90 transition text-center">Start 14-Day Free Trial</Link>
             </div>
-            <div className="border-2 border-primary rounded-xl p-8 text-center relative">
+            {/* Pro */}
+            <div className="border-2 border-primary rounded-xl p-6 text-center relative">
               <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-white text-xs font-bold px-3 py-1 rounded-full">Most Popular</span>
-              <h3 className="text-xl font-bold text-gray-900">Pro</h3>
+              <h3 className="text-lg font-bold text-gray-900">Pro</h3>
               <p className="mt-4 text-4xl font-bold text-gray-900">$59<span className="text-lg font-normal text-gray-500">/mo</span></p>
+              <p className="mt-2 text-xs text-gray-500">14-day free trial</p>
               <ul className="mt-6 space-y-3 text-sm text-gray-600 text-left">
                 <li className="flex items-start gap-2"><CheckCircle className="h-5 w-5 text-green-500 shrink-0" /> Up to 5 users</li>
                 <li className="flex items-start gap-2"><CheckCircle className="h-5 w-5 text-green-500 shrink-0" /> Unlimited leads</li>

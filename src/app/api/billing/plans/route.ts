@@ -3,6 +3,17 @@ import { NextResponse } from "next/server";
 export async function GET() {
   const plans = [
     {
+      id: "free",
+      name: "Free",
+      price: 0,
+      interval: "month",
+      features: [
+        "1 user",
+        "Up to 25 leads",
+        "Lead & customer management",
+      ],
+    },
+    {
       id: "starter",
       name: "Starter",
       price: 29,

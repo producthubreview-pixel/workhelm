@@ -265,6 +265,7 @@ export default function SettingsPage() {
   const isSubscribed = billingStatus?.subscriptionStatus === "active";
   const isStripeReady = billingStatus?.stripeConfigured;
   const isNearLimit = billingStatus?.plan === "STARTER" && leadCount >= 225;
+  const isNearFreeLimit = billingStatus?.plan === "FREE" && leadCount >= 20;
 
   // Format date
   const formatDate = (dateStr: string | null) => {
@@ -290,6 +291,29 @@ export default function SettingsPage() {
             </p>
             <p className="text-sm text-amber-700 mt-1">
               Upgrade to Pro for unlimited leads and more features.
+            </p>
+            <Button
+              size="sm"
+              variant="outline"
+              className="mt-2 border-amber-300 text-amber-700 hover:bg-amber-100"
+              onClick={() => setActiveTab("subscription")}
+            >
+              View Plans
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Free plan limit banner */}
+      {isNearFreeLimit && (
+        <div className="mb-6 bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-3">
+          <AlertTriangle className="h-5 w-5 text-amber-600 mt-0.5 shrink-0" />
+          <div className="flex-1">
+            <p className="text-sm font-medium text-amber-800">
+              You&apos;re approaching your Free plan limit ({leadCount}/25 leads).
+            </p>
+            <p className="text-sm text-amber-700 mt-1">
+              Upgrade to Starter or Pro for more leads and full features.
             </p>
             <Button
               size="sm"
@@ -628,92 +652,121 @@ export default function SettingsPage() {
             </Card>
 
             {/* Plan Comparison */}
-            {isStripeReady && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Available Plans</CardTitle>
-                  <CardDescription>Choose the plan that fits your business</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid md:grid-cols-2 gap-4">
-                    {/* Starter */}
-                    <div className={`border rounded-xl p-6 ${billingStatus?.plan === "STARTER" ? "border-primary ring-1 ring-primary" : ""}`}>
-                      <h3 className="text-lg font-bold text-gray-900">Starter</h3>
-                      <p className="text-3xl font-bold mt-2">
-                        $29<span className="text-sm font-normal text-gray-500">/mo</span>
-                      </p>
-                      <ul className="mt-4 space-y-2">
-                        {[
-                          "1 user seat",
-                          "Up to 250 leads",
-                          "Lead & customer management",
-                          "Estimate tracking",
-                          "Follow-up reminders",
-                          "Sales pipeline (kanban)",
-                          "Message templates",
-                          "Basic reports",
-                        ].map((f) => (
-                          <li key={f} className="flex items-center gap-2 text-sm text-gray-600">
-                            <Check className="h-4 w-4 text-green-500 shrink-0" /> {f}
-                          </li>
-                        ))}
-                      </ul>
-                      <Button
-                        className="w-full mt-6"
-                        variant={billingStatus?.plan === "STARTER" ? "outline" : "default"}
-                        disabled={billingStatus?.plan === "STARTER" || checkoutLoading}
-                        onClick={() => handleCheckout("starter")}
-                      >
-                        {billingStatus?.plan === "STARTER"
-                          ? "Current Plan"
-                          : checkoutLoading
-                            ? "Loading..."
-                            : "Choose Starter"}
-                      </Button>
-                    </div>
-
-                    {/* Pro */}
-                    <div className={`border rounded-xl p-6 bg-gradient-to-b from-primary/5 to-white ${billingStatus?.plan === "PRO" ? "border-primary ring-1 ring-primary" : "border-primary/30"}`}>
-                      <div className="flex items-center gap-2">
-                        <h3 className="text-lg font-bold text-gray-900">Pro</h3>
-                        <Badge className="bg-primary text-white">Popular</Badge>
-                      </div>
-                      <p className="text-3xl font-bold mt-2">
-                        $59<span className="text-sm font-normal text-gray-500">/mo</span>
-                      </p>
-                      <ul className="mt-4 space-y-2">
-                        {[
-                          "Up to 5 user seats",
-                          "Unlimited leads",
-                          "Everything in Starter",
-                          "Priority support",
-                          "Advanced reporting (coming soon)",
-                          "Custom templates (coming soon)",
-                        ].map((f) => (
-                          <li key={f} className="flex items-center gap-2 text-sm text-gray-600">
-                            <Check className="h-4 w-4 text-green-500 shrink-0" /> {f}
-                          </li>
-                        ))}
-                      </ul>
-                      <Button
-                        className="w-full mt-6"
-                        variant={billingStatus?.plan === "PRO" ? "outline" : "default"}
-                        disabled={billingStatus?.plan === "PRO" || checkoutLoading}
-                        onClick={() => handleCheckout("pro")}
-                      >
-                        {billingStatus?.plan === "PRO"
-                          ? "Current Plan"
-                          : checkoutLoading
-                            ? "Loading..."
-                            : billingStatus?.plan === "STARTER"
-                              ? "Upgrade to Pro"
-                              : "Choose Pro"}
-                      </Button>
-                    </div>
+            <Card>
+              <CardHeader>
+                <CardTitle>Available Plans</CardTitle>
+                <CardDescription>Choose the plan that fits your business</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className={`grid gap-4 ${isStripeReady ? "md:grid-cols-3" : "md:grid-cols-1"}`}>
+                  {/* Free — always available */}
+                  <div className={`border rounded-xl p-6 ${billingStatus?.plan === "FREE" ? "border-primary ring-1 ring-primary" : ""}`}>
+                    <h3 className="text-lg font-bold text-gray-900">Free</h3>
+                    <p className="text-3xl font-bold mt-2">
+                      $0<span className="text-sm font-normal text-gray-500">/mo</span>
+                    </p>
+                    <ul className="mt-4 space-y-2">
+                      {[
+                        "1 user",
+                        "Up to 25 leads",
+                        "Lead & customer management",
+                      ].map((f) => (
+                        <li key={f} className="flex items-center gap-2 text-sm text-gray-600">
+                          <Check className="h-4 w-4 text-green-500 shrink-0" /> {f}
+                        </li>
+                      ))}
+                    </ul>
+                    <Button
+                      className="w-full mt-6"
+                      variant={billingStatus?.plan === "FREE" ? "outline" : "default"}
+                      disabled={billingStatus?.plan === "FREE"}
+                    >
+                      {billingStatus?.plan === "FREE" ? "Current Plan" : "Downgrade to Free"}
+                    </Button>
                   </div>
-                </CardContent>
-              </Card>
-            )}
+
+                  {/* Starter & Pro — require Stripe */}
+                  {isStripeReady && (
+                    <>
+                      {/* Starter */}
+                      <div className={`border rounded-xl p-6 ${billingStatus?.plan === "STARTER" ? "border-primary ring-1 ring-primary" : ""}`}>
+                        <h3 className="text-lg font-bold text-gray-900">Starter</h3>
+                        <p className="text-3xl font-bold mt-2">
+                          $29<span className="text-sm font-normal text-gray-500">/mo</span>
+                        </p>
+                        <ul className="mt-4 space-y-2">
+                          {[
+                            "1 user seat",
+                            "Up to 250 leads",
+                            "Lead & customer management",
+                            "Estimate tracking",
+                            "Follow-up reminders",
+                            "Sales pipeline (kanban)",
+                            "Message templates",
+                            "Basic reports",
+                          ].map((f) => (
+                            <li key={f} className="flex items-center gap-2 text-sm text-gray-600">
+                              <Check className="h-4 w-4 text-green-500 shrink-0" /> {f}
+                            </li>
+                          ))}
+                        </ul>
+                        <Button
+                          className="w-full mt-6"
+                          variant={billingStatus?.plan === "STARTER" ? "outline" : "default"}
+                          disabled={billingStatus?.plan === "STARTER" || checkoutLoading}
+                          onClick={() => handleCheckout("starter")}
+                        >
+                          {billingStatus?.plan === "STARTER"
+                            ? "Current Plan"
+                            : checkoutLoading
+                              ? "Loading..."
+                              : "Choose Starter"}
+                        </Button>
+                      </div>
+
+                      {/* Pro */}
+                      <div className={`border rounded-xl p-6 bg-gradient-to-b from-primary/5 to-white ${billingStatus?.plan === "PRO" ? "border-primary ring-1 ring-primary" : "border-primary/30"}`}>
+                        <div className="flex items-center gap-2">
+                          <h3 className="text-lg font-bold text-gray-900">Pro</h3>
+                          <Badge className="bg-primary text-white">Popular</Badge>
+                        </div>
+                        <p className="text-3xl font-bold mt-2">
+                          $59<span className="text-sm font-normal text-gray-500">/mo</span>
+                        </p>
+                        <ul className="mt-4 space-y-2">
+                          {[
+                            "Up to 5 user seats",
+                            "Unlimited leads",
+                            "Everything in Starter",
+                            "Priority support",
+                            "Advanced reporting (coming soon)",
+                            "Custom templates (coming soon)",
+                          ].map((f) => (
+                            <li key={f} className="flex items-center gap-2 text-sm text-gray-600">
+                              <Check className="h-4 w-4 text-green-500 shrink-0" /> {f}
+                            </li>
+                          ))}
+                        </ul>
+                        <Button
+                          className="w-full mt-6"
+                          variant={billingStatus?.plan === "PRO" ? "outline" : "default"}
+                          disabled={billingStatus?.plan === "PRO" || checkoutLoading}
+                          onClick={() => handleCheckout("pro")}
+                        >
+                          {billingStatus?.plan === "PRO"
+                            ? "Current Plan"
+                            : checkoutLoading
+                              ? "Loading..."
+                              : billingStatus?.plan === "STARTER"
+                                ? "Upgrade to Pro"
+                                : "Choose Pro"}
+                        </Button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
 
             {/* Billing History */}
             {isStripeReady && billingStatus?.hasPaymentMethod && (
