@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
 
   const checkoutSession = await stripe.checkout.sessions.create({
     customer: stripeCustomerId,
-    mode: "subscription",
+    mode: "payment",
     payment_method_types: ["card"],
     line_items: [
       {
@@ -76,10 +76,6 @@ export async function POST(req: NextRequest) {
         quantity: 1,
       },
     ],
-    subscription_data: {
-      trial_period_days: (await isInTrial(userId)) ? undefined : 0,
-      metadata: { userId, plan },
-    },
     success_url: `${baseUrl}/app/settings?billing=success`,
     cancel_url: `${baseUrl}/app/settings?billing=cancelled`,
     metadata: { userId, plan },
