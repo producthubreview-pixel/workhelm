@@ -7,6 +7,7 @@ import {
   LayoutDashboard, Users, Building2, FileText, Columns3, 
   Calendar, BarChart3, Settings, Menu, X, LogOut, HardHat, MessageSquare 
 } from "lucide-react";
+import { UpgradeButton } from "@/components/layout/upgrade-button";
 
 const navItems = [
   { href: "/app/today", label: "Today", icon: LayoutDashboard },
@@ -62,6 +63,9 @@ export function AppSidebar({ user }: { user: any }) {
             })}
           </nav>
           <div className="p-4 border-t">
+            <div className="mb-3">
+              <UpgradeButton />
+            </div>
             <div className="flex items-center gap-3 mb-3">
               <div className="h-9 w-9 rounded-full bg-primary text-white flex items-center justify-center text-sm font-bold">
                 {user?.name?.charAt(0) || "U"}
