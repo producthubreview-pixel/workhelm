@@ -76,6 +76,23 @@ export async function POST(req: NextRequest) {
     }
   }
 
+  // Block lead creation when subscription ended with too many leads
+  if (
+    user?.subscriptionStatus === "canceled" ||
+    user?.subscriptionStatus === "locked"
+  ) {
+    const leadCount = await db.lead.count({ where: { userId } });
+    if (leadCount > 5) {
+      return NextResponse.json(
+        {
+          error: "Your subscription has ended and you have more than 5 leads. Please reactivate your subscription to continue adding leads.",
+          code: "SUBSCRIPTION_LOCKED",
+        },
+        { status: 403 }
+      );
+    }
+  }
+
   if (user?.plan === "STARTER") {
     const leadCount = await db.lead.count({ where: { userId } });
     if (leadCount >= 250) {

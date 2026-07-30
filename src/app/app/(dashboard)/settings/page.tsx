@@ -682,13 +682,13 @@ export default function SettingsPage() {
                         </li>
                       ))}
                     </ul>
-                    <Button
-                      className="w-full mt-6"
-                      variant={billingStatus?.plan === "FREE" ? "outline" : "default"}
-                      disabled={billingStatus?.plan === "FREE"}
-                    >
-                      {billingStatus?.plan === "FREE" ? "Current Plan" : "Downgrade to Free"}
-                    </Button>
+                    {billingStatus?.plan === "FREE" ? (
+                      <Button className="w-full mt-6" variant="outline" disabled>
+                        Current Plan
+                      </Button>
+                    ) : (
+                      <p className="text-xs text-gray-400 text-center mt-6">Cancel via Stripe Billing Portal</p>
+                    )}
                   </div>
 
                   {/* Starter & Pro */}
