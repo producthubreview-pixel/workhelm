@@ -33,39 +33,40 @@ export async function POST(req: NextRequest) {
     );
   }
 
- try {
-  const user = await db.user.findUnique({
-    where: { id: userId },
-    select: { email: true, stripeCustomerId: true },
-  });
-
-  if (!user) {
-    return NextResponse.json({ error: "User not found" }, { status: 404 });
-  }
-
-  let stripeCustomerId = user.stripeCustomerId;
-
-  // Create Stripe customer if doesn't exist
-  if (!stripeCustomerId && user.email) {
-    const customer = await stripe.customers.create({
-      email: user.email,
-      metadata: { userId },
-    });
-    stripeCustomerId = customer.id;
-    await db.user.update({
+  try {
+    const user = await db.user.findUnique({
       where: { id: userId },
-      data: { stripeCustomerId: customer.id },
+      select: { email: true, stripeCustomerId: true },
     });
-  }
 
-  if (!stripeCustomerId) {
-    return NextResponse.json(
-      { error: "Cannot create checkout session without email" },
-      { status: 400 }
-    );
-  }
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
 
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+    let stripeCustomerId = user.stripeCustomerId;
+
+    // Create Stripe customer if doesn't exist
+    if (!stripeCustomerId && user.email) {
+      const customer = await stripe.customers.create({
+        email: user.email,
+        metadata: { userId },
+      });
+      stripeCustomerId = customer.id;
+      await db.user.update({
+        where: { id: userId },
+        data: { stripeCustomerId: customer.id },
+      });
+    }
+
+    if (!stripeCustomerId) {
+      return NextResponse.json(
+        { error: "Cannot create checkout session without email" },
+        { status: 400 }
+      );
+    }
+
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+
     const checkoutSession = await stripe.checkout.sessions.create({
       customer: stripeCustomerId,
       mode: "subscription",
@@ -92,5 +93,5 @@ export async function POST(req: NextRequest) {
       { error: err?.raw?.message || err?.message || "Stripe checkout failed" },
       { status: 500 }
     );
- }
+  }
 }
