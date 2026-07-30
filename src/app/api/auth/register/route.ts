@@ -13,9 +13,8 @@ export async function POST(req: NextRequest) {
     const existing = await db.user.findUnique({ where: { email } });
     if (existing) return NextResponse.json({ error: "Email already registered" }, { status: 400 });
     const hashed = await bcrypt.hash(password, 12);
-    const trialEndsAt = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);
     const user = await db.user.create({
-      data: { name, businessName, email, phone, password: hashed, businessCategory: category, timezone, trialEndsAt, subscriptionStatus: "trialing", emailVerified: null }
+      data: { name, businessName, email, phone, password: hashed, businessCategory: category, timezone, plan: "FREE", subscriptionStatus: null, trialEndsAt: null, emailVerified: null }
     });
 
     // Generate verification token

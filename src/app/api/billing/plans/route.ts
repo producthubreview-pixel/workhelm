@@ -20,7 +20,7 @@ export async function GET() {
       priceId: process.env.STRIPE_STARTER_PRICE_ID || null,
       interval: "month",
       features: [
-        "1 user seat",
+        "2 user seats",
         "Up to 250 leads",
         "Lead & customer management",
         "Estimate tracking",

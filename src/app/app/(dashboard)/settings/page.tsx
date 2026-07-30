@@ -696,7 +696,7 @@ export default function SettingsPage() {
                         </p>
                         <ul className="mt-4 space-y-2">
                           {[
-                            "1 user seat",
+                            "2 user seats",
                             "Up to 250 leads",
                             "Lead & customer management",
                             "Estimate tracking",
