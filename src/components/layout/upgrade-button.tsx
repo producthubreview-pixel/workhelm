@@ -24,7 +24,7 @@ export function UpgradeButton() {
 
   return (
     <Link
-      href="/app/settings"
+      href="/app/settings?tab=subscription"
       className="flex items-center gap-2 w-full px-3 py-2.5 rounded-lg text-sm font-semibold bg-primary text-white hover:opacity-90 transition"
     >
       <ArrowUpCircle className="h-4 w-4" />
