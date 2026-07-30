@@ -691,7 +691,7 @@ export default function SettingsPage() {
                       <div className={`border rounded-xl p-6 ${billingStatus?.plan === "STARTER" ? "border-primary ring-1 ring-primary" : ""}`}>
                         <h3 className="text-lg font-bold text-gray-900">Starter</h3>
                         <p className="text-3xl font-bold mt-2">
-                          $29<span className="text-sm font-normal text-gray-500"> one-time</span>
+                          $29<span className="text-sm font-normal text-gray-500">/mo</span>
                         </p>
                         <ul className="mt-4 space-y-2">
                           {[
@@ -732,7 +732,7 @@ export default function SettingsPage() {
                           <Badge className="bg-primary text-white">Popular</Badge>
                         </div>
                         <p className="text-3xl font-bold mt-2">
-                          $59<span className="text-sm font-normal text-gray-500"> one-time</span>
+                          $59<span className="text-sm font-normal text-gray-500">/mo</span>
                         </p>
                         <ul className="mt-4 space-y-2">
                           {[
