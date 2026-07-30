@@ -226,14 +226,20 @@ export default function SettingsPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ plan }),
       });
-      const data = await res.json();
+      let data: any;
+      try {
+        data = await res.json();
+      } catch {
+        const text = await res.text();
+        throw new Error(text || `HTTP ${res.status}`);
+      }
       if (data.url) {
         window.location.href = data.url;
       } else {
         toast({ title: "Error", description: data.error || "Could not start checkout.", variant: "destructive" });
       }
-    } catch {
-      toast({ title: "Error", description: "Failed to start checkout.", variant: "destructive" });
+    } catch (e: any) {
+      toast({ title: "Error", description: e?.message || "Failed to start checkout.", variant: "destructive" });
     } finally {
       setCheckoutLoading(false);
     }

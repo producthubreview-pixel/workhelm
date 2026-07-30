@@ -66,7 +66,8 @@ export async function POST(req: NextRequest) {
 
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
-  const checkoutSession = await stripe.checkout.sessions.create({
+  try {
+    const checkoutSession = await stripe.checkout.sessions.create({
     customer: stripeCustomerId,
     mode: "subscription",
     payment_method_types: ["card"],
@@ -86,4 +87,11 @@ export async function POST(req: NextRequest) {
   });
 
   return NextResponse.json({ url: checkoutSession.url });
+  } catch (err: any) {
+    console.error("Stripe checkout error:", err);
+    return NextResponse.json(
+      { error: err?.raw?.message || err?.message || "Stripe checkout failed" },
+      { status: 500 }
+    );
+  }
 }
