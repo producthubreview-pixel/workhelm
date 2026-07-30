@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
 
   const checkoutSession = await stripe.checkout.sessions.create({
     customer: stripeCustomerId,
-    mode: "payment",
+    mode: "subscription",
     payment_method_types: ["card"],
     line_items: [
       {
@@ -76,31 +76,14 @@ export async function POST(req: NextRequest) {
         quantity: 1,
       },
     ],
+    subscription_data: {
+      trial_period_days: 14,
+      metadata: { userId, plan },
+    },
     success_url: `${baseUrl}/app/settings?billing=success`,
     cancel_url: `${baseUrl}/app/settings?billing=cancelled`,
     metadata: { userId, plan },
   });
 
   return NextResponse.json({ url: checkoutSession.url });
-}
-
-// Helper: check if user is still in trial
-async function isInTrial(uid: string): Promise<boolean> {
-  const dbUser = await db.user.findUnique({
-    where: { id: uid },
-    select: { subscriptionStatus: true, trialEndsAt: true, stripeSubscriptionId: true },
-  });
-
-  if (!dbUser) return false;
-  if (dbUser.stripeSubscriptionId) return false;
-
-  if (
-    dbUser.subscriptionStatus === "trialing" &&
-    dbUser.trialEndsAt &&
-    new Date(dbUser.trialEndsAt) > new Date()
-  ) {
-    return true;
-  }
-
-  return false;
 }

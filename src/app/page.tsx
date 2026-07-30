@@ -75,7 +75,7 @@ export default function LandingPage() {
             {/* Starter */}
             <div className="border rounded-xl p-6 text-center">
               <h3 className="text-lg font-bold text-gray-900">Starter</h3>
-              <p className="mt-4 text-4xl font-bold text-gray-900">$29<span className="text-lg font-normal text-gray-500"> one-time</span></p>
+              <p className="mt-4 text-4xl font-bold text-gray-900">$29<span className="text-lg font-normal text-gray-500">/mo</span></p>
               <p className="mt-2 text-xs text-gray-500">14-day free trial</p>
               <ul className="mt-6 space-y-3 text-sm text-gray-600 text-left">
                 <li className="flex items-start gap-2"><CheckCircle className="h-5 w-5 text-green-500 shrink-0" /> 2 users</li>
@@ -90,7 +90,7 @@ export default function LandingPage() {
             <div className="border-2 border-primary rounded-xl p-6 text-center relative">
               <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-white text-xs font-bold px-3 py-1 rounded-full">Most Popular</span>
               <h3 className="text-lg font-bold text-gray-900">Pro</h3>
-              <p className="mt-4 text-4xl font-bold text-gray-900">$59<span className="text-lg font-normal text-gray-500"> one-time</span></p>
+              <p className="mt-4 text-4xl font-bold text-gray-900">$59<span className="text-lg font-normal text-gray-500">/mo</span></p>
               <p className="mt-2 text-xs text-gray-500">14-day free trial</p>
               <ul className="mt-6 space-y-3 text-sm text-gray-600 text-left">
                 <li className="flex items-start gap-2"><CheckCircle className="h-5 w-5 text-green-500 shrink-0" /> Up to 5 users</li>
