@@ -82,7 +82,7 @@ export function LeadsUsageBanner() {
           </p>
         </div>
 
-        <Link href="/app/settings">
+        <Link href="/app/settings?tab=subscription">
           <Button
             variant={isAtLimit ? "default" : "outline"}
             size="sm"

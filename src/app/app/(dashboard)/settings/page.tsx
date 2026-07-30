@@ -70,7 +70,7 @@ type BillingHistoryItem = {
 export default function SettingsPage() {
   const searchParams = useSearchParams();
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState("profile");
+  const [activeTab, setActiveTab] = useState(searchParams.get("tab") || "profile");
   const [profileLoading, setProfileLoading] = useState(false);
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
