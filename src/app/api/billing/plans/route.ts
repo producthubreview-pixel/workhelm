@@ -18,7 +18,7 @@ export async function GET() {
       name: "Starter",
       price: 29,
       priceId: process.env.STRIPE_STARTER_PRICE_ID || null,
-      interval: "month",
+      interval: "one-time",
       features: [
         "2 user seats",
         "Up to 250 leads",
@@ -35,7 +35,7 @@ export async function GET() {
       name: "Pro",
       price: 59,
       priceId: process.env.STRIPE_PRO_PRICE_ID || null,
-      interval: "month",
+      interval: "one-time",
       features: [
         "Up to 5 user seats",
         "Unlimited leads",
