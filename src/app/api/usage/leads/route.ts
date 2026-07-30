@@ -3,7 +3,7 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 
 const PLAN_LIMITS: Record<string, number> = {
-  FREE: 25,
+  FREE: 5,
   STARTER: 250,
   PRO: Infinity,
 };
@@ -29,7 +29,7 @@ export async function GET() {
   }
 
   const plan = user.plan;
-  const limit = PLAN_LIMITS[plan] ?? 25;
+  const limit = PLAN_LIMITS[plan] ?? 5;
 
   return NextResponse.json({ count: leadCount, plan, limit });
 }

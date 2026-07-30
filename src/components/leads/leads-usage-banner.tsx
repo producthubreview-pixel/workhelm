@@ -31,7 +31,7 @@ export function LeadsUsageBanner() {
 
   const { count, limit } = data;
   const pct = Math.min((count / limit) * 100, 100);
-  const isNearLimit = count >= 20;
+  const isNearLimit = count >= 4;
   const isAtLimit = count >= limit;
 
   // Determine color scheme
