@@ -658,7 +658,7 @@ export default function SettingsPage() {
                 <CardDescription>Choose the plan that fits your business</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className={`grid gap-4 ${isStripeReady ? "md:grid-cols-3" : "md:grid-cols-1"}`}>
+                <div className="grid gap-4 md:grid-cols-3">
                   {/* Free — always available */}
                   <div className={`border rounded-xl p-6 ${billingStatus?.plan === "FREE" ? "border-primary ring-1 ring-primary" : ""}`}>
                     <h3 className="text-lg font-bold text-gray-900">Free</h3>
@@ -685,8 +685,7 @@ export default function SettingsPage() {
                     </Button>
                   </div>
 
-                  {/* Starter & Pro — require Stripe */}
-                  {isStripeReady && (
+                  {/* Starter & Pro */}
                     <>
                       {/* Starter */}
                       <div className={`border rounded-xl p-6 ${billingStatus?.plan === "STARTER" ? "border-primary ring-1 ring-primary" : ""}`}>
@@ -713,14 +712,16 @@ export default function SettingsPage() {
                         <Button
                           className="w-full mt-6"
                           variant={billingStatus?.plan === "STARTER" ? "outline" : "default"}
-                          disabled={billingStatus?.plan === "STARTER" || checkoutLoading}
+                          disabled={billingStatus?.plan === "STARTER" || checkoutLoading || !isStripeReady}
                           onClick={() => handleCheckout("starter")}
                         >
                           {billingStatus?.plan === "STARTER"
                             ? "Current Plan"
-                            : checkoutLoading
-                              ? "Loading..."
-                              : "Choose Starter"}
+                            : !isStripeReady
+                              ? "Coming Soon"
+                              : checkoutLoading
+                                ? "Loading..."
+                                : "Choose Starter"}
                         </Button>
                       </div>
 
@@ -750,20 +751,21 @@ export default function SettingsPage() {
                         <Button
                           className="w-full mt-6"
                           variant={billingStatus?.plan === "PRO" ? "outline" : "default"}
-                          disabled={billingStatus?.plan === "PRO" || checkoutLoading}
+                          disabled={billingStatus?.plan === "PRO" || checkoutLoading || !isStripeReady}
                           onClick={() => handleCheckout("pro")}
                         >
                           {billingStatus?.plan === "PRO"
                             ? "Current Plan"
-                            : checkoutLoading
-                              ? "Loading..."
-                              : billingStatus?.plan === "STARTER"
-                                ? "Upgrade to Pro"
-                                : "Choose Pro"}
+                            : !isStripeReady
+                              ? "Coming Soon"
+                              : checkoutLoading
+                                ? "Loading..."
+                                : billingStatus?.plan === "STARTER"
+                                  ? "Upgrade to Pro"
+                                  : "Choose Pro"}
                         </Button>
                       </div>
                     </>
-                  )}
                 </div>
               </CardContent>
             </Card>
