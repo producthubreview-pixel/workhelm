@@ -265,7 +265,7 @@ export default function SettingsPage() {
   const isSubscribed = billingStatus?.subscriptionStatus === "active";
   const isStripeReady = billingStatus?.stripeConfigured;
   const isNearLimit = billingStatus?.plan === "STARTER" && leadCount >= 225;
-  const isNearFreeLimit = billingStatus?.plan === "FREE" && leadCount >= 20;
+  const isNearFreeLimit = billingStatus?.plan === "FREE" && leadCount >= 4;
 
   // Format date
   const formatDate = (dateStr: string | null) => {
@@ -310,7 +310,7 @@ export default function SettingsPage() {
           <AlertTriangle className="h-5 w-5 text-amber-600 mt-0.5 shrink-0" />
           <div className="flex-1">
             <p className="text-sm font-medium text-amber-800">
-              You&apos;re approaching your Free plan limit ({leadCount}/25 leads).
+              You&apos;re approaching your Free plan limit ({leadCount}/5 leads).
             </p>
             <p className="text-sm text-amber-700 mt-1">
               Upgrade to Starter or Pro for more leads and full features.
@@ -668,7 +668,7 @@ export default function SettingsPage() {
                     <ul className="mt-4 space-y-2">
                       {[
                         "1 user",
-                        "Up to 25 leads",
+                        "Up to 5 leads",
                         "Lead & customer management",
                       ].map((f) => (
                         <li key={f} className="flex items-center gap-2 text-sm text-gray-600">

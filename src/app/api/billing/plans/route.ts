@@ -9,7 +9,7 @@ export async function GET() {
       interval: "month",
       features: [
         "1 user",
-        "Up to 25 leads",
+        "Up to 5 leads",
         "Lead & customer management",
       ],
     },

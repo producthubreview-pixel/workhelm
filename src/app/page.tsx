@@ -67,7 +67,7 @@ export default function LandingPage() {
               <p className="mt-2 text-xs text-gray-500">No credit card required</p>
               <ul className="mt-6 space-y-3 text-sm text-gray-600 text-left">
                 <li className="flex items-start gap-2"><CheckCircle className="h-5 w-5 text-green-500 shrink-0" /> 1 user</li>
-                <li className="flex items-start gap-2"><CheckCircle className="h-5 w-5 text-green-500 shrink-0" /> Up to 25 leads</li>
+                <li className="flex items-start gap-2"><CheckCircle className="h-5 w-5 text-green-500 shrink-0" /> Up to 5 leads</li>
                 <li className="flex items-start gap-2"><CheckCircle className="h-5 w-5 text-green-500 shrink-0" /> Lead & customer management</li>
               </ul>
               <Link href="/signup" className="mt-8 block w-full py-3 border-2 border-primary text-primary font-semibold rounded-lg hover:bg-primary hover:text-white transition text-center">Get Started Free</Link>
