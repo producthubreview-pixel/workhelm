@@ -21,6 +21,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { StatusBadge, PriorityBadge } from "@/components/leads/status-badge";
+import { LeadsUsageBanner } from "@/components/leads/leads-usage-banner";
 import { useToast } from "@/components/ui/use-toast";
 import { formatDate } from "@/lib/date-utils";
 
@@ -115,6 +116,9 @@ export default function LeadsPage() {
           </Button>
         </Link>
       </div>
+
+      {/* Leads Usage Banner (Free plan only) */}
+      <LeadsUsageBanner />
 
       {/* Search & Filters */}
       <div className="flex flex-col sm:flex-row gap-3 mb-6">
