@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { StatusBadge } from "@/components/leads/status-badge";
+import { LeadsUsageBanner } from "@/components/leads/leads-usage-banner";
 import { useToast } from "@/components/ui/use-toast";
 import { formatDate } from "@/lib/date-utils";
 
@@ -330,6 +331,9 @@ export default function TodayPage() {
   return (
     <div>
       <h1 className="text-2xl font-bold text-gray-900 mb-6">Today</h1>
+
+      {/* Leads Usage Banner (Free plan only) */}
+      <LeadsUsageBanner />
 
       {/* ─── Stats Summary Bar ─────────────────────────────────────── */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6">
