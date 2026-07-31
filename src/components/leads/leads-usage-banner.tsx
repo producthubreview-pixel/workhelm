@@ -9,6 +9,7 @@ type UsageData = {
   count: number;
   plan: string;
   limit: number;
+  subscriptionStatus?: string | null;
 } | null;
 
 export function LeadsUsageBanner() {
@@ -29,7 +30,10 @@ export function LeadsUsageBanner() {
   // Don't show anything while loading
   if (loading || !data) return null;
 
-  const { count, limit } = data;
+  const { count, limit, subscriptionStatus } = data;
+  const isLocked = subscriptionStatus === "locked";
+  const isCanceled = subscriptionStatus === "canceled";
+  const isPaidPlan = data.plan === "STARTER" || data.plan === "PRO";
   const isUnlimited = limit === -1 || limit >= 999999;
   const pct = isUnlimited ? 0 : Math.min((count / limit) * 100, 100);
   const isNearLimit = !isUnlimited && count >= Math.max(limit - 1, Math.floor(limit * 0.9));
@@ -57,7 +61,41 @@ export function LeadsUsageBanner() {
   }
 
   return (
-    <div className={`rounded-lg border ${borderColor} ${bgColor} p-4 mb-6`}>
+    <>
+      {/* Locked or canceled subscription warning */}
+      {isPaidPlan && (isLocked || isCanceled) && (
+        <div className="rounded-lg border border-red-300 bg-red-50 p-4 mb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-red-500 shrink-0" />
+              <div>
+                <p className="font-semibold text-sm text-red-700">
+                  {isLocked
+                    ? "Your subscription has ended and you have too many leads for the Free plan."
+                    : "Your subscription is canceled — access ends at period end."}
+                </p>
+                <p className="text-xs text-red-600 mt-1">
+                  {isLocked
+                    ? `You have ${count} leads (Free plan limit: 5). Reactivate your subscription to continue adding leads.`
+                    : "Reactivate in the Stripe Billing Portal to keep full access."}
+                </p>
+              </div>
+            </div>
+            <Link href="/app/settings?tab=subscription">
+              <Button
+                variant="default"
+                size="sm"
+                className="gap-1 flex-shrink-0 bg-red-600 hover:bg-red-700 text-white"
+              >
+                {isLocked ? "Reactivate" : "Manage"} <ArrowRight className="h-4 w-4" />
+              </Button>
+            </Link>
+          </div>
+        </div>
+      )}
+
+      {/* Regular usage bar */}
+      <div className={`rounded-lg border ${borderColor} ${bgColor} p-4 mb-6`}>
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
@@ -112,5 +150,6 @@ export function LeadsUsageBanner() {
         )}
       </div>
     </div>
+    </>
   );
 }

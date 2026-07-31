@@ -19,7 +19,7 @@ export async function GET() {
   const [user, leadCount] = await Promise.all([
     db.user.findUnique({
       where: { id: userId },
-      select: { plan: true },
+      select: { plan: true, subscriptionStatus: true },
     }),
     db.lead.count({ where: { userId } }),
   ]);
@@ -31,5 +31,10 @@ export async function GET() {
   const plan = user.plan;
   const limit = PLAN_LIMITS[plan] ?? 5;
 
-  return NextResponse.json({ count: leadCount, plan, limit });
+  return NextResponse.json({
+    count: leadCount,
+    plan,
+    limit,
+    subscriptionStatus: user.subscriptionStatus,
+  });
 }
