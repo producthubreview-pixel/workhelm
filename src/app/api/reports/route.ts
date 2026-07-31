@@ -9,9 +9,8 @@ export async function GET(req: NextRequest) {
   }
 
   const userId = session.user.id;
-  const { searchParams } = new URL(req.url);
-  const startDateStr = searchParams.get("startDate");
-  const endDateStr = searchParams.get("endDate");
+  const startDateStr = req.nextUrl.searchParams.get("startDate");
+  const endDateStr = req.nextUrl.searchParams.get("endDate");
 
   let startDate: Date;
   let endDate: Date;
