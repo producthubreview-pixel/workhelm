@@ -43,81 +43,53 @@ export async function GET(req: NextRequest) {
   };
 
   try {
-    const [
-      totalLeads,
-      leadsWon,
-      leadsLost,
-      estimatesSent,
-      estimatesAccepted,
-      estimatesDeclined,
-      pipelineValueResult,
-      followUpsCompleted,
-      totalFollowUps,
-      overdueFollowUps,
-    ] = await Promise.all([
-    // Total Leads
-    db.lead.count({ where: leadDateFilter }),
+    // Start with just lead counts to isolate the issue
+    const totalLeads = await db.lead.count({ where: leadDateFilter });
+    const leadsWon = await db.lead.count({ where: { ...leadDateFilter, status: "WON" } });
+    const leadsLost = await db.lead.count({ where: { ...leadDateFilter, status: "LOST" } });
 
-    // Leads Won
-    db.lead.count({
-      where: { ...leadDateFilter, status: "WON" },
-    }),
+    const conversionRate =
+      leadsWon + leadsLost > 0
+        ? Math.round((leadsWon / (leadsWon + leadsLost)) * 100)
+        : 0;
 
-    // Leads Lost
-    db.lead.count({
-      where: { ...leadDateFilter, status: "LOST" },
-    }),
+    try {
+      var estimatesSent = await db.estimate.count({
+        where: { ...estimateDateFilter, status: { in: ["SENT", "FOLLOW_UP_DUE", "ACCEPTED", "DECLINED"] } },
+      });
+      var estimatesAccepted = await db.estimate.count({ where: { ...estimateDateFilter, status: "ACCEPTED" } });
+      var estimatesDeclined = await db.estimate.count({ where: { ...estimateDateFilter, status: "DECLINED" } });
+    } catch (e) {
+      console.error("Estimate query error:", e);
+      var estimatesSent = 0;
+      var estimatesAccepted = 0;
+      var estimatesDeclined = 0;
+    }
 
-    // Estimates Sent
-    db.estimate.count({
-      where: {
-        ...estimateDateFilter,
-        status: { in: ["SENT", "FOLLOW_UP_DUE", "ACCEPTED", "DECLINED"] },
-      },
-    }),
+    try {
+      var pipelineValueResult = await db.lead.aggregate({
+        where: { userId, status: { notIn: ["WON", "LOST"] } },
+        _sum: { estimatedValue: true },
+      });
+    } catch (e) {
+      console.error("Pipeline value error:", e);
+      var pipelineValueResult = { _sum: { estimatedValue: null } };
+    }
 
-    // Estimates Accepted
-    db.estimate.count({
-      where: { ...estimateDateFilter, status: "ACCEPTED" },
-    }),
-
-    // Estimates Declined
-    db.estimate.count({
-      where: { ...estimateDateFilter, status: "DECLINED" },
-    }),
-
-    // Pipeline Value: sum of estimatedValue for leads NOT won/lost
-    db.lead.aggregate({
-      where: {
-        userId,
-        status: { notIn: ["WON", "LOST"] },
-      },
-      _sum: { estimatedValue: true },
-    }),
-
-    // Follow-Ups Completed
-    db.followUp.count({
-      where: { ...followUpDateFilter, status: "COMPLETED" },
-    }),
-
-    // Total Follow-Ups in period
-    db.followUp.count({ where: followUpDateFilter }),
-
-    // Overdue Follow-Ups: OPEN and dueAt < now
-    db.followUp.count({
-      where: {
-        userId,
-        status: "OPEN",
-        dueAt: { lt: new Date() },
-      },
-    }),
-  ]);
-
-  // Derived metrics
-  const conversionRate =
-    leadsWon + leadsLost > 0
-      ? Math.round((leadsWon / (leadsWon + leadsLost)) * 100)
-      : 0;
+    try {
+      var followUpsCompleted = await db.followUp.count({
+        where: { ...followUpDateFilter, status: "COMPLETED" },
+      });
+      var totalFollowUps = await db.followUp.count({ where: followUpDateFilter });
+      var overdueFollowUps = await db.followUp.count({
+        where: { userId, status: "OPEN", dueAt: { lt: new Date() } },
+      });
+    } catch (e) {
+      console.error("FollowUp query error:", e);
+      var followUpsCompleted = 0;
+      var totalFollowUps = 0;
+      var overdueFollowUps = 0;
+    }
 
   const followUpCompletionRate =
     totalFollowUps > 0
