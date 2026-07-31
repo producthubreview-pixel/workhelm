@@ -44,6 +44,7 @@ import {
   ExternalLink,
   AlertTriangle,
   FileText,
+  RefreshCw,
 } from "lucide-react";
 
 type BillingStatus = {
@@ -267,8 +268,30 @@ export default function SettingsPage() {
     }
   };
 
+  // Sync subscription status from Stripe
+  const [syncLoading, setSyncLoading] = useState(false);
+  const handleSync = async () => {
+    setSyncLoading(true);
+    try {
+      const res = await fetch("/api/billing/sync", { method: "POST" });
+      const data = await res.json();
+      if (res.ok) {
+        toast({ title: "Synced", description: `Status: ${data.subscriptionStatus}, Plan: ${data.plan}` });
+        // Refresh billing status
+        fetchBillingStatus();
+      } else {
+        toast({ title: "Sync failed", description: data.error, variant: "destructive" });
+      }
+    } catch {
+      toast({ title: "Error", description: "Failed to sync with Stripe.", variant: "destructive" });
+    } finally {
+      setSyncLoading(false);
+    }
+  };
+
   const isTrialing = billingStatus?.subscriptionStatus === "trialing";
   const isSubscribed = billingStatus?.subscriptionStatus === "active";
+  const isCanceled = billingStatus?.subscriptionStatus === "canceled";
   const isStripeReady = billingStatus?.stripeConfigured;
   const isNearLimit = billingStatus?.plan === "STARTER" && leadCount >= 225;
   const isNearFreeLimit = billingStatus?.plan === "FREE" && leadCount >= 4;
@@ -651,6 +674,36 @@ export default function SettingsPage() {
                           </>
                         )}
                       </Button>
+                    )}
+
+                    {/* Sync button */}
+                    {isSubscribed && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleSync}
+                        disabled={syncLoading}
+                        className="ml-2"
+                      >
+                        {syncLoading ? (
+                          <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                        ) : (
+                          <RefreshCw className="h-4 w-4 mr-1" />
+                        )}
+                        Refresh status
+                      </Button>
+                    )}
+
+                    {/* Canceled banner */}
+                    {isCanceled && (
+                      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                        <p className="font-semibold text-yellow-800">
+                          Subscription canceled — access ends at period end.
+                        </p>
+                        <p className="text-sm text-yellow-600 mt-1">
+                          Reactivate your subscription in the Stripe Billing Portal to keep using WorkHelm.
+                        </p>
+                      </div>
                     )}
                   </>
                 )}
