@@ -43,18 +43,19 @@ export async function GET(req: NextRequest) {
     createdAt: { gte: startDate, lte: endDate },
   };
 
-  const [
-    totalLeads,
-    leadsWon,
-    leadsLost,
-    estimatesSent,
-    estimatesAccepted,
-    estimatesDeclined,
-    pipelineValueResult,
-    followUpsCompleted,
-    totalFollowUps,
-    overdueFollowUps,
-  ] = await Promise.all([
+  try {
+    const [
+      totalLeads,
+      leadsWon,
+      leadsLost,
+      estimatesSent,
+      estimatesAccepted,
+      estimatesDeclined,
+      pipelineValueResult,
+      followUpsCompleted,
+      totalFollowUps,
+      overdueFollowUps,
+    ] = await Promise.all([
     // Total Leads
     db.lead.count({ where: leadDateFilter }),
 
@@ -148,4 +149,11 @@ export async function GET(req: NextRequest) {
     leadsLostPct:
       totalLeads > 0 ? Math.round((leadsLost / totalLeads) * 100) : 0,
   });
+  } catch (err) {
+    console.error("Reports error:", err);
+    return NextResponse.json(
+      { error: "Failed to generate reports", details: String(err) },
+      { status: 500 }
+    );
+  }
 }

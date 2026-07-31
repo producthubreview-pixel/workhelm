@@ -235,13 +235,16 @@ export default function ReportsPage() {
 
       const params = new URLSearchParams({ startDate, endDate });
       const res = await fetch(`/api/reports?${params}`);
-      if (!res.ok) throw new Error("Failed to fetch");
+      if (!res.ok) {
+        const json = await res.json();
+        throw new Error(json.details || json.error || "Failed to fetch");
+      }
       const json = await res.json();
       setData(json);
-    } catch {
+    } catch (err: any) {
       toast({
         title: "Error",
-        description: "Failed to load reports",
+        description: err?.message || "Failed to load reports",
         variant: "destructive",
       });
     } finally {
