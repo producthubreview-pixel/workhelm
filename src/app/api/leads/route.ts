@@ -26,6 +26,8 @@ export async function GET(req: NextRequest) {
       { phone: { contains: search, mode: "insensitive" } },
       { email: { contains: search, mode: "insensitive" } },
       { serviceAddress: { contains: search, mode: "insensitive" } },
+      { state: { contains: search, mode: "insensitive" } },
+      { zip: { contains: search, mode: "insensitive" } },
     ];
   }
 
@@ -126,6 +128,8 @@ export async function POST(req: NextRequest) {
       phone: data.phone,
       email: data.email || null,
       serviceAddress: data.serviceAddress || null,
+      state: data.state || null,
+      zip: data.zip || null,
       serviceRequested: data.serviceRequested || null,
       estimatedValue: data.estimatedValue ?? null,
       source: data.source || null,

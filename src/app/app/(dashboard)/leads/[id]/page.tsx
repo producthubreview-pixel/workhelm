@@ -32,6 +32,8 @@ type Lead = {
   phone: string | null;
   email: string | null;
   serviceAddress: string | null;
+  state: string | null;
+  zip: string | null;
   serviceRequested: string | null;
   estimatedValue: number | null;
   source: string | null;
@@ -299,16 +301,32 @@ export default function LeadDetailPage() {
                 </a>
               </div>
             )}
-            {lead.serviceAddress && (
+            {(lead.serviceAddress || lead.state || lead.zip) && (
               <div className="flex items-start gap-2 text-sm">
                 <MapPin className="h-4 w-4 text-gray-400 shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-xs font-medium text-gray-500">Service Address</p>
-                  <p>{lead.serviceAddress}</p>
+                <div className="space-y-1">
+                  {lead.serviceAddress && (
+                    <div>
+                      <p className="text-xs font-medium text-gray-500">Service Address</p>
+                      <p>{lead.serviceAddress}</p>
+                    </div>
+                  )}
+                  {lead.state && (
+                    <div>
+                      <p className="text-xs font-medium text-gray-500">State</p>
+                      <p>{lead.state}</p>
+                    </div>
+                  )}
+                  {lead.zip && (
+                    <div>
+                      <p className="text-xs font-medium text-gray-500">Zip</p>
+                      <p>{lead.zip}</p>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
-            {!lead.phone && !lead.email && !lead.serviceAddress && (
+            {!lead.phone && !lead.email && !lead.serviceAddress && !lead.state && !lead.zip && (
               <p className="text-sm text-gray-500">No contact info available.</p>
             )}
           </CardContent>

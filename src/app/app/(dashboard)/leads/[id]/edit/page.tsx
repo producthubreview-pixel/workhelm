@@ -27,6 +27,8 @@ export default function EditLeadPage() {
             phone: lead.phone || "",
             email: lead.email || "",
             serviceAddress: lead.serviceAddress || "",
+            state: lead.state || "",
+            zip: lead.zip || "",
             serviceRequested: lead.serviceRequested || "",
             estimatedValue: lead.estimatedValue,
             source: lead.source || "",

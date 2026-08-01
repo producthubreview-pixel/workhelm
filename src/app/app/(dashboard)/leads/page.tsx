@@ -32,6 +32,8 @@ type Lead = {
   phone: string | null;
   email: string | null;
   serviceAddress: string | null;
+  state: string | null;
+  zip: string | null;
   serviceRequested: string | null;
   estimatedValue: number | null;
   source: string | null;
@@ -352,10 +354,12 @@ export default function LeadsPage() {
                     <span className="text-gray-400">Service:</span> {lead.serviceRequested}
                   </p>
                 )}
-                {lead.serviceAddress && (
+                {(lead.serviceAddress || lead.state || lead.zip) && (
                   <p className="text-sm text-gray-600 mb-1 flex items-center gap-1">
                     <MapPin className="h-3 w-3 text-gray-400" />
-                    {lead.serviceAddress}
+                    {[lead.serviceAddress, [lead.state, lead.zip].filter(Boolean).join(" ")]
+                      .filter(Boolean)
+                      .join(", ")}
                   </p>
                 )}
 
