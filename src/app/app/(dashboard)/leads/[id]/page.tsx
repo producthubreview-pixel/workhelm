@@ -122,7 +122,7 @@ export default function LeadDetailPage() {
         estimatedValue: lead!.estimatedValue,
         source: lead!.source || "",
         nextFollowUpAt: lead!.nextFollowUpAt
-          ? new Date(lead!.nextFollowUpAt).toISOString().split("T")[0]
+          ? new Date(lead!.nextFollowUpAt).toISOString().slice(0, 16)
           : "",
       }),
     });

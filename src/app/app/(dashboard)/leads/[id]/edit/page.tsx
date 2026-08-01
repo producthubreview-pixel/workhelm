@@ -35,7 +35,7 @@ export default function EditLeadPage() {
             status: lead.status,
             priority: lead.priority,
             nextFollowUpAt: lead.nextFollowUpAt
-              ? new Date(lead.nextFollowUpAt).toISOString().split("T")[0]
+              ? new Date(lead.nextFollowUpAt).toISOString().slice(0, 16)
               : "",
             notes: lead.notes || "",
           });

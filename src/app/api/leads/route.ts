@@ -135,7 +135,7 @@ export async function POST(req: NextRequest) {
       source: data.source || null,
       status: data.status,
       priority: data.priority,
-      nextFollowUpAt: data.nextFollowUpAt ? new Date(data.nextFollowUpAt) : null,
+      nextFollowUpAt: data.nextFollowUpAt ? new Date(data.nextFollowUpAt + "Z") : null,
       notes: data.notes || null,
     },
   });
