@@ -307,10 +307,10 @@ export function LeadForm({
           name="nextFollowUpAt"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Next Follow-Up Date</FormLabel>
+              <FormLabel>Next Follow-Up</FormLabel>
               <FormControl>
                 <Input
-                  type="date"
+                  type="datetime-local"
                   value={field.value ?? ""}
                   onChange={field.onChange}
                   className="max-w-[240px]"
