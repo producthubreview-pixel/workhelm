@@ -302,7 +302,10 @@ export default function LeadDetailPage() {
             {lead.serviceAddress && (
               <div className="flex items-start gap-2 text-sm">
                 <MapPin className="h-4 w-4 text-gray-400 shrink-0 mt-0.5" />
-                <span>{lead.serviceAddress}</span>
+                <div>
+                  <p className="text-xs font-medium text-gray-500">Service Address</p>
+                  <p>{lead.serviceAddress}</p>
+                </div>
               </div>
             )}
             {!lead.phone && !lead.email && !lead.serviceAddress && (
