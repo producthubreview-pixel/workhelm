@@ -59,6 +59,8 @@ export function LeadForm({
       phone: "",
       email: "",
       serviceAddress: "",
+      state: "",
+      zip: "",
       serviceRequested: "",
       estimatedValue: null,
       source: "",
@@ -142,7 +144,8 @@ export function LeadForm({
               <FormLabel>Service Address</FormLabel>
               <FormControl>
                 <Input
-                  placeholder="123 Main St, City, State, ZIP"
+                  placeholder="123 Main St"
+                  autoComplete="street-address"
                   {...field}
                 />
               </FormControl>
@@ -150,6 +153,50 @@ export function LeadForm({
             </FormItem>
           )}
         />
+
+        <div className="grid grid-cols-3 gap-4">
+          <FormField
+            control={form.control}
+            name="state"
+            render={({ field }) => (
+              <FormItem className="col-span-1">
+                <FormLabel>State</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="CA"
+                    maxLength={2}
+                    autoComplete="address-level1"
+                    className="uppercase"
+                    onChange={(e) =>
+                      field.onChange(e.target.value.toUpperCase())
+                    }
+                    value={field.value}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="zip"
+            render={({ field }) => (
+              <FormItem className="col-span-2">
+                <FormLabel>Zip</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="90210"
+                    maxLength={10}
+                    autoComplete="postal-code"
+                    inputMode="numeric"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
 
         <div className="grid md:grid-cols-2 gap-4">
           <FormField

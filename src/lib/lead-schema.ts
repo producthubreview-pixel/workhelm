@@ -6,6 +6,8 @@ export const leadFormSchema = z.object({
   phone: z.string().min(1, "Phone is required"),
   email: z.string().email("Invalid email").optional().or(z.literal("")),
   serviceAddress: z.string().optional(),
+  state: z.string().optional(),
+  zip: z.string().optional(),
   serviceRequested: z.string().optional(),
   estimatedValue: z.number().positive("Must be positive").optional().nullable(),
   source: z.string().optional(),
