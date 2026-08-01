@@ -154,6 +154,7 @@ export default function FollowUpsPage() {
   }, [fetchFollowUps, fetchEntityOptions]);
 
   const today = startOfDay(new Date());
+  const now = new Date();
   const todayEnd = endOfDay(new Date());
 
   function getFiltered(tab: TabKey): FollowUp[] {
@@ -161,14 +162,14 @@ export default function FollowUpsPage() {
     switch (tab) {
       case "today":
         filtered = followUps.filter(
-          (f) => f.status === "OPEN" && new Date(f.dueAt) >= today && new Date(f.dueAt) <= todayEnd
+          (f) => f.status === "OPEN" && new Date(f.dueAt) >= now && new Date(f.dueAt) >= today && new Date(f.dueAt) <= todayEnd
         );
         break;
       case "upcoming":
         filtered = followUps.filter((f) => f.status === "OPEN" && new Date(f.dueAt) > todayEnd);
         break;
       case "overdue":
-        filtered = followUps.filter((f) => f.status === "OPEN" && new Date(f.dueAt) < today);
+        filtered = followUps.filter((f) => f.status === "OPEN" && new Date(f.dueAt) < now);
         break;
       case "completed":
         filtered = followUps.filter((f) => f.status === "COMPLETED");
@@ -350,7 +351,7 @@ export default function FollowUpsPage() {
   }
 
   function isOverdue(fu: FollowUp): boolean {
-    return fu.status === "OPEN" && new Date(fu.dueAt) < today;
+    return fu.status === "OPEN" && new Date(fu.dueAt) < now;
   }
 
   return (

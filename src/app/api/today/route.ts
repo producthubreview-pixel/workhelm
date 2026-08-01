@@ -11,6 +11,7 @@ export async function GET() {
   const userId = session.user.id;
   const today = new Date();
   today.setHours(0, 0, 0, 0);
+  const now = new Date();
   const tomorrow = new Date(today);
   tomorrow.setDate(tomorrow.getDate() + 1);
 
@@ -38,7 +39,7 @@ export async function GET() {
       where: {
         userId,
         status: "OPEN",
-        dueAt: { gte: today, lt: tomorrow },
+        dueAt: { gte: now, lt: tomorrow },
       },
       include: {
         lead: { select: { firstName: true, lastName: true } },
@@ -53,7 +54,7 @@ export async function GET() {
       where: {
         userId,
         status: "OPEN",
-        dueAt: { lt: today },
+        dueAt: { lt: now },
       },
       include: {
         lead: { select: { firstName: true, lastName: true } },
@@ -86,10 +87,10 @@ export async function GET() {
     // Counts
     db.lead.count({ where: { userId, status: "NEW" } }),
     db.followUp.count({
-      where: { userId, status: "OPEN", dueAt: { gte: today, lt: tomorrow } },
+      where: { userId, status: "OPEN", dueAt: { gte: now, lt: tomorrow } },
     }),
     db.followUp.count({
-      where: { userId, status: "OPEN", dueAt: { lt: today } },
+      where: { userId, status: "OPEN", dueAt: { lt: now } },
     }),
     db.estimate.count({
       where: { userId, status: { in: ["SENT", "FOLLOW_UP_DUE"] } },
