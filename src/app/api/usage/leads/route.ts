@@ -21,7 +21,10 @@ export async function GET() {
       where: { id: userId },
       select: { plan: true, subscriptionStatus: true },
     }),
-    db.lead.count({ where: { userId } }),
+    // Count active leads only (exclude terminal WON/LOST, incl. converted customers)
+    db.lead.count({
+      where: { userId, status: { notIn: ["WON", "LOST"] } },
+    }),
   ]);
 
   if (!user) {

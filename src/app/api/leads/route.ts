@@ -33,6 +33,10 @@ export async function GET(req: NextRequest) {
 
   if (status) {
     where.status = status as any;
+  } else {
+    // Default listing: exclude terminal statuses (WON/LOST — converted-to-customer
+    // leads are set to WON by the convert flow) so counts and lists show active leads.
+    where.status = { notIn: ["WON", "LOST"] };
   }
 
   if (priority) {
@@ -135,7 +139,7 @@ export async function POST(req: NextRequest) {
       source: data.source || null,
       status: data.status,
       priority: data.priority,
-      nextFollowUpAt: data.nextFollowUpAt ? new Date(data.nextFollowUpAt + "Z") : null,
+      nextFollowUpAt: data.nextFollowUpAt ? new Date(data.nextFollowUpAt) : null,
       notes: data.notes || null,
     },
   });

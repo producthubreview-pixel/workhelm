@@ -64,7 +64,7 @@ export async function PUT(
       source: data.source || null,
       status: data.status,
       priority: data.priority,
-      nextFollowUpAt: data.nextFollowUpAt ? new Date(data.nextFollowUpAt + "Z") : null,
+      nextFollowUpAt: data.nextFollowUpAt ? new Date(data.nextFollowUpAt) : null,
       notes: data.notes || null,
     },
   });
