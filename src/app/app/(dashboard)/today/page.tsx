@@ -383,7 +383,7 @@ export default function TodayPage() {
           colorClass="border-red-300"
           headerColor="text-red-700"
           count={overdueFollowUps.length}
-          viewAllLink="/app/follow-ups"
+          viewAllLink="/app/follow-ups?tab=overdue"
           emptyMessage="No overdue follow-ups — you're on top of it!"
           highlight={true}
         >
@@ -406,7 +406,7 @@ export default function TodayPage() {
           colorClass="border-amber-200"
           headerColor="text-amber-700"
           count={followUpsDueToday.length}
-          viewAllLink="/app/follow-ups"
+          viewAllLink="/app/follow-ups?tab=today"
           emptyMessage="Nothing due today — enjoy the calm!"
         >
           {followUpsDueToday.map((f) => (

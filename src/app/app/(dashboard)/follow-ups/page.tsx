@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
   Plus,
@@ -80,7 +81,10 @@ export default function FollowUpsPage() {
   const { toast } = useToast();
   const [followUps, setFollowUps] = useState<FollowUp[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<TabKey>("today");
+  const searchParams = useSearchParams();
+  const [activeTab, setActiveTab] = useState<TabKey>(
+    (searchParams.get("tab") as TabKey) || "today"
+  );
   const [search, setSearch] = useState("");
 
   const [formOpen, setFormOpen] = useState(false);
