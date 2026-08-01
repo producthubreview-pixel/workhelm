@@ -130,7 +130,7 @@ export default function TodayPage() {
 
   const fetchData = useCallback(async () => {
     try {
-      const res = await fetch("/api/dashboard/today");
+      const res = await fetch("/api/today");
       if (!res.ok) throw new Error("Failed to fetch");
       const json = await res.json();
       setData(json);
