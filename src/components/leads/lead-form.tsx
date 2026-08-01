@@ -141,9 +141,8 @@ export function LeadForm({
             <FormItem>
               <FormLabel>Service Address</FormLabel>
               <FormControl>
-                <Textarea
+                <Input
                   placeholder="123 Main St, City, State, ZIP"
-                  rows={2}
                   {...field}
                 />
               </FormControl>
