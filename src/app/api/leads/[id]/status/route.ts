@@ -43,5 +43,14 @@ export async function PATCH(
     data: updateData,
   });
 
+  // Terminal leads no longer need follow-up actions. Complete any remaining
+  // open follow-ups so they disappear from Today and the overdue queue.
+  if (parsed.data.status === "WON" || parsed.data.status === "LOST") {
+    await db.followUp.updateMany({
+      where: { leadId: id, userId: session.user.id, status: "OPEN" },
+      data: { status: "COMPLETED", completedAt: new Date() },
+    });
+  }
+
   return NextResponse.json(updated);
 }
