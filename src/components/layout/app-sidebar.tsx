@@ -5,9 +5,10 @@ import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { 
   LayoutDashboard, Users, Building2, FileText, Columns3, 
-  Calendar, BarChart3, Settings, Menu, X, LogOut, HardHat, MessageSquare 
+  Calendar, BarChart3, Settings, Menu, X, LogOut, MessageSquare 
 } from "lucide-react";
 import { UpgradeButton } from "@/components/layout/upgrade-button";
+import { Logo } from "@/components/brand/logo";
 
 const navItems = [
   { href: "/app/today", label: "Today", icon: LayoutDashboard },
@@ -29,9 +30,7 @@ export function AppSidebar({ user }: { user: any }) {
     <>
       {/* Mobile header */}
       <header className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-white border-b h-16 flex items-center justify-between px-4">
-        <Link href="/app/today" className="flex items-center gap-2 font-bold text-primary">
-          <HardHat className="h-6 w-6" /> WorkHelm
-        </Link>
+        <Logo href="/app/today" size="sm" />
         <button onClick={() => setMobileOpen(!mobileOpen)} className="p-2">
           {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
         </button>
@@ -43,9 +42,8 @@ export function AppSidebar({ user }: { user: any }) {
       {/* Sidebar */}
       <aside className={`fixed top-0 left-0 z-50 h-full w-64 bg-white border-r transform transition-transform lg:translate-x-0 ${mobileOpen ? "translate-x-0" : "-translate-x-full"}`}>
         <div className="flex flex-col h-full">
-          <div className="h-16 flex items-center gap-2 px-6 border-b">
-            <HardHat className="h-6 w-6 text-primary" />
-            <span className="font-bold text-lg text-gray-900">WorkHelm</span>
+          <div className="h-16 flex items-center px-6 border-b">
+            <Logo href="/app/today" size="sm" />
           </div>
           <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
             {navItems.map((item) => {
