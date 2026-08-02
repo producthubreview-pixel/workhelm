@@ -88,7 +88,7 @@ export default function NewEstimatePage() {
         <EstimateForm
           customers={customers}
           onSubmit={handleSubmit}
-          submitLabel="Create & Send Estimate"
+          submitLabel="Create & Send"
           isLoading={submitting}
         />
       </div>
