@@ -55,6 +55,7 @@ export default function TemplatesPage() {
 
   // Edit dialog state
   const [editing, setEditing] = useState<Template | null>(null);
+  const [editName, setEditName] = useState("");
   const [editSubject, setEditSubject] = useState("");
   const [editBody, setEditBody] = useState("");
   const [saving, setSaving] = useState(false);
@@ -105,6 +106,7 @@ export default function TemplatesPage() {
 
   function openEdit(t: Template) {
     setEditing(t);
+    setEditName(t.name);
     setEditSubject(t.subject);
     setEditBody(t.body);
     setPreviewMode(false);
@@ -117,7 +119,7 @@ export default function TemplatesPage() {
       const res = await fetch(`/api/templates/${editing.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ subject: editSubject, body: editBody }),
+        body: JSON.stringify({ name: editName, subject: editSubject, body: editBody }),
       });
       if (res.ok) {
         const updated = await res.json();
@@ -353,6 +355,16 @@ export default function TemplatesPage() {
             ) : (
               /* ── Edit mode ────────────────────────────────────────── */
               <>
+                <div>
+                  <Label htmlFor="edit-name">Template name</Label>
+                  <Input
+                    id="edit-name"
+                    value={editName}
+                    onChange={(e) => setEditName(e.target.value)}
+                    placeholder="Template name..."
+                  />
+                </div>
+
                 <div>
                   <Label htmlFor="edit-subject">Subject</Label>
                   <Input

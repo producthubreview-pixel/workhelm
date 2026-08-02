@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { sendEmail } from "@/lib/email";
+import { DEFAULT_TEMPLATES, fillTemplate } from "@/lib/template-defaults";
 
 export async function PATCH(
   req: NextRequest,
@@ -37,8 +39,32 @@ export async function PATCH(
     },
     include: {
       customer: { select: { id: true, name: true, phone: true, email: true } },
+      user: { select: { businessName: true } },
     },
   });
+
+  if (updated.customer.email) {
+    try {
+      const savedTemplate = await db.messageTemplate.findFirst({
+        where: { userId: session.user.id, category: "ESTIMATE_SENT" },
+      });
+      const template = savedTemplate || DEFAULT_TEMPLATES.find((item) => item.category === "ESTIMATE_SENT")!;
+      const values = {
+        "{{name}}": updated.customer.name,
+        "{{business}}": updated.user.businessName || "our team",
+        "{{service}}": updated.title,
+        "{{expires}}": updated.expiresAt ? updated.expiresAt.toLocaleDateString() : "the stated expiration date",
+      };
+      const amount = updated.amount == null ? "an amount to be confirmed" : `$${updated.amount.toFixed(2)}`;
+      await sendEmail({
+        to: updated.customer.email,
+        subject: fillTemplate(template.subject, values),
+        body: `${fillTemplate(template.body, values)}\n\nEstimate amount: ${amount}\nPlease reply to this email with any questions or to approve the work.`,
+      });
+    } catch (error) {
+      console.error("Failed to send estimate email:", error);
+    }
+  }
 
   return NextResponse.json(updated);
 }
