@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, Check, BarChart3, Calendar, FileText, Users, Bell, Zap } from "lucide-react";
+import { Logo } from "@/components/brand/logo";
 
 const benefits = [
   { icon: Users, title: "Never Lose a Lead", desc: "Every inquiry is captured and tracked so nothing slips through the cracks." },
@@ -46,7 +47,7 @@ export default function LandingPage() {
       {/* Sticky Nav */}
       <header className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
-          <Link href="/" className="text-xl font-bold text-primary">WorkHelm</Link>
+          <Logo href="/" size="md" />
           <nav className="hidden md:flex items-center gap-8">
             <a href="#how-it-works" className="text-sm font-medium text-gray-600 hover:text-gray-900">How It Works</a>
             <a href="#pricing" className="text-sm font-medium text-gray-600 hover:text-gray-900">Pricing</a>
