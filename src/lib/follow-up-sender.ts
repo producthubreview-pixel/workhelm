@@ -2,8 +2,22 @@ import { db } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
 import { DEFAULT_TEMPLATES, fillTemplate } from "@/lib/template-defaults";
 
-/** Sends due estimate follow-ups for one owner. Failed sends remain open for retry. */
+/**
+ * Sends due estimate follow-ups for one owner. Failed sends remain open for retry.
+ * This is a best-effort side effect: any error (DB drift, email provider outage)
+ * is logged and swallowed so callers like the Today dashboard never fail because
+ * follow-up sending failed.
+ */
 export async function sendDueFollowUps(userId?: string): Promise<{ processed: number; sent: number }> {
+  try {
+    return await sendDueFollowUpsUnsafe(userId);
+  } catch (error) {
+    console.error("Failed to run follow-up sender:", error);
+    return { processed: 0, sent: 0 };
+  }
+}
+
+async function sendDueFollowUpsUnsafe(userId?: string): Promise<{ processed: number; sent: number }> {
   const followUps = await db.followUp.findMany({
     where: {
       status: "OPEN",
