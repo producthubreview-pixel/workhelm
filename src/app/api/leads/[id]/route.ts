@@ -32,6 +32,7 @@ export async function PUT(
   }
 
   const { id } = await params;
+  const userId = session.user.id;
 
   const lead = await db.lead.findUnique({ where: { id } });
   if (!lead || lead.userId !== session.user.id) {
@@ -68,6 +69,45 @@ export async function PUT(
       notes: data.notes || null,
     },
   });
+
+  // Keep FollowUp records in sync with Lead.nextFollowUpAt:
+  // - date set      → update the existing OPEN follow-up (or create one if
+  //                   none exists) so the Follow-Ups page / Today dashboard
+  //                   stay accurate
+  // - date cleared  → remove OPEN follow-ups tied to the lead's previously
+  //                   scheduled date so they don't linger as stale items
+  if (data.nextFollowUpAt) {
+    const existingOpen = await db.followUp.findFirst({
+      where: { leadId: id, userId, status: "OPEN" },
+      orderBy: { dueAt: "asc" },
+    });
+    if (existingOpen) {
+      await db.followUp.update({
+        where: { id: existingOpen.id },
+        data: { dueAt: new Date(data.nextFollowUpAt) },
+      });
+    } else {
+      const followUpName =
+        [data.firstName, data.lastName].filter(Boolean).join(" ").trim() ||
+        "lead";
+      await db.followUp.create({
+        data: {
+          leadId: id,
+          userId,
+          title: `Follow up with ${followUpName}`,
+          dueAt: new Date(data.nextFollowUpAt),
+          status: "OPEN",
+          notes: `Initial follow-up for ${followUpName}`,
+        },
+      });
+    }
+  } else if (lead.nextFollowUpAt) {
+    // The previously scheduled date was cleared — drop OPEN follow-ups so the
+    // lead's follow-up disappears from Follow-Ups / Today consistently.
+    await db.followUp.deleteMany({
+      where: { leadId: id, userId, status: "OPEN" },
+    });
+  }
 
   return NextResponse.json(updated);
 }
