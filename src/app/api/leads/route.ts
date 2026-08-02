@@ -144,5 +144,24 @@ export async function POST(req: NextRequest) {
     },
   });
 
+  // Keep FollowUp records in sync: when a lead is created with a next
+  // follow-up date, create an OPEN FollowUp so it shows up on the Follow-Ups
+  // page and the Today dashboard (both query the FollowUp table).
+  if (data.nextFollowUpAt) {
+    const followUpName =
+      [data.firstName, data.lastName].filter(Boolean).join(" ").trim() ||
+      "lead";
+    await db.followUp.create({
+      data: {
+        leadId: lead.id,
+        userId,
+        title: `Follow up with ${followUpName}`,
+        dueAt: new Date(data.nextFollowUpAt),
+        status: "OPEN",
+        notes: `Initial follow-up for ${followUpName}`,
+      },
+    });
+  }
+
   return NextResponse.json(lead, { status: 201 });
 }
