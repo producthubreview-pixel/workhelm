@@ -84,11 +84,11 @@ export default function NewEstimatePage() {
       </Link>
 
       <div className="bg-white rounded-xl border p-6 max-w-2xl">
-        <h1 className="text-xl font-bold text-gray-900 mb-6">New Estimate</h1>
+        <h1 className="text-xl font-bold text-gray-900 mb-6">Create & Send Estimate</h1>
         <EstimateForm
           customers={customers}
           onSubmit={handleSubmit}
-          submitLabel="Create Estimate"
+          submitLabel="Create & Send Estimate"
           isLoading={submitting}
         />
       </div>
