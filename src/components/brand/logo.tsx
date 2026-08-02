@@ -33,7 +33,7 @@ function LogoSVG({ height = 48 }: { height?: number }) {
 }
 
 export function Logo({ href = "/", size = "md" }: { href?: string; size?: "sm" | "md" | "lg" }) {
-  const heights = { sm: 36, md: 52, lg: 68 };
+  const heights = { sm: 44, md: 60, lg: 80 };
   const h = heights[size];
 
   if (href) {
