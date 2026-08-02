@@ -59,6 +59,7 @@ export function LeadForm({
       phone: "",
       email: "",
       serviceAddress: "",
+      city: "",
       state: "",
       zip: "",
       serviceRequested: "",
@@ -154,6 +155,24 @@ export function LeadForm({
                 <Input
                   placeholder="123 Main St"
                   autoComplete="street-address"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="city"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>City</FormLabel>
+              <FormControl>
+                <Input
+                  placeholder="Los Angeles"
+                  autoComplete="address-level2"
                   {...field}
                 />
               </FormControl>

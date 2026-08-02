@@ -127,6 +127,7 @@ model Lead {
   phone           String?
   email           String?
   serviceAddress  String?
+  city            String?
   state           String?
   zip             String?
   serviceRequested String?

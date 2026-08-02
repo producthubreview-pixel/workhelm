@@ -32,6 +32,7 @@ type Lead = {
   phone: string | null;
   email: string | null;
   serviceAddress: string | null;
+  city: string | null;
   state: string | null;
   zip: string | null;
   serviceRequested: string | null;
@@ -118,6 +119,9 @@ export default function LeadDetailPage() {
         priority: lead!.priority,
         notes: updatedNotes,
         serviceAddress: lead!.serviceAddress || "",
+        city: lead!.city || "",
+        state: lead!.state || "",
+        zip: lead!.zip || "",
         serviceRequested: lead!.serviceRequested || "",
         estimatedValue: lead!.estimatedValue,
         source: lead!.source || "",
@@ -299,7 +303,7 @@ export default function LeadDetailPage() {
                 </a>
               </div>
             )}
-            {(lead.serviceAddress || lead.state || lead.zip) && (
+            {(lead.serviceAddress || lead.city || lead.state || lead.zip) && (
               <div className="flex items-start gap-2 text-sm">
                 <MapPin className="h-4 w-4 text-gray-400 shrink-0 mt-0.5" />
                 <div className="space-y-1">
@@ -307,6 +311,12 @@ export default function LeadDetailPage() {
                     <div>
                       <p className="text-xs font-medium text-gray-500">Service Address</p>
                       <p>{lead.serviceAddress}</p>
+                    </div>
+                  )}
+                  {lead.city && (
+                    <div>
+                      <p className="text-xs font-medium text-gray-500">City</p>
+                      <p>{lead.city}</p>
                     </div>
                   )}
                   {lead.state && (
@@ -324,7 +334,7 @@ export default function LeadDetailPage() {
                 </div>
               </div>
             )}
-            {!lead.phone && !lead.email && !lead.serviceAddress && !lead.state && !lead.zip && (
+            {!lead.phone && !lead.email && !lead.serviceAddress && !lead.city && !lead.state && !lead.zip && (
               <p className="text-sm text-gray-500">No contact info available.</p>
             )}
           </CardContent>

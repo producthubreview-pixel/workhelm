@@ -58,6 +58,7 @@ export async function PUT(
       phone: data.phone,
       email: data.email || null,
       serviceAddress: data.serviceAddress || null,
+      city: data.city || null,
       state: data.state || null,
       zip: data.zip || null,
       serviceRequested: data.serviceRequested || null,
