@@ -170,7 +170,7 @@ export default function FollowUpsPage() {
         );
         break;
       case "upcoming":
-        filtered = followUps.filter((f) => f.status === "OPEN" && new Date(f.dueAt) > todayEnd);
+        filtered = followUps.filter((f) => f.status === "OPEN" && new Date(f.dueAt) >= now);
         break;
       case "overdue":
         filtered = followUps.filter((f) => f.status === "OPEN" && new Date(f.dueAt) < now);
