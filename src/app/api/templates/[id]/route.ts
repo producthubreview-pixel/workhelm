@@ -30,8 +30,9 @@ export async function PUT(
   const updated = await db.messageTemplate.update({
     where: { id },
     data: {
-      subject: body.subject !== undefined ? body.subject : existing.subject,
-      body: body.body !== undefined ? body.body : existing.body,
+      name: body.name !== undefined ? String(body.name) : existing.name,
+      subject: body.subject !== undefined ? String(body.subject) : existing.subject,
+      body: body.body !== undefined ? String(body.body) : existing.body,
     },
   });
 

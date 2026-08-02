@@ -1,18 +1,22 @@
 import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
-const fromAddress = process.env.RESEND_EMAIL_FROM || "noreply@workhelm.com";
+const fromAddress = "hello@getworkhelm.com";
 
 interface SendEmailParams {
   to: string;
   subject: string;
-  html: string;
+  /** Plain text is converted to simple paragraphs for email clients. */
+  body?: string;
+  /** Use html for system emails such as verification links. */
+  html?: string;
 }
 
-export async function sendEmail({ to, subject, html }: SendEmailParams): Promise<boolean> {
+export async function sendEmail({ to, subject, body, html }: SendEmailParams): Promise<boolean> {
+  const emailHtml = html || (body || "").split(/\n\s*\n/).map((paragraph) => `<p>${paragraph.replaceAll("\n", "<br />")}</p>`).join("");
   if (!process.env.RESEND_API_KEY) {
     console.log(`[EMAIL DISABLED] Would send to ${to}: ${subject}`);
-    console.log(html);
+    console.log(emailHtml);
     return true;
   }
 
@@ -21,7 +25,7 @@ export async function sendEmail({ to, subject, html }: SendEmailParams): Promise
       from: fromAddress,
       to,
       subject,
-      html,
+      html: emailHtml,
     });
 
     if (error) {

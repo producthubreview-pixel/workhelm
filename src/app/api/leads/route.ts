@@ -3,6 +3,8 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { leadFormSchema } from "@/lib/lead-schema";
 import { Prisma } from "@prisma/client";
+import { sendEmail } from "@/lib/email";
+import { DEFAULT_TEMPLATES, fillTemplate } from "@/lib/template-defaults";
 
 export async function GET(req: NextRequest) {
   const session = await auth();
@@ -66,7 +68,7 @@ export async function POST(req: NextRequest) {
   // Plan limit enforcement: Starter plan max 250 leads
   const user = await db.user.findUnique({
     where: { id: userId },
-    select: { plan: true, subscriptionStatus: true },
+    select: { plan: true, subscriptionStatus: true, businessName: true },
   });
 
   if (user?.plan === "FREE") {
@@ -161,6 +163,28 @@ export async function POST(req: NextRequest) {
         notes: `Initial follow-up for ${followUpName}`,
       },
     });
+  }
+
+  // Notify the lead without making email delivery failure block lead creation.
+  if (lead.email) {
+    try {
+      const savedTemplate = await db.messageTemplate.findFirst({
+        where: { userId, category: "NEW_LEAD" },
+      });
+      const template = savedTemplate || DEFAULT_TEMPLATES.find((item) => item.category === "NEW_LEAD")!;
+      const values = {
+        "{{name}}": [lead.firstName, lead.lastName].filter(Boolean).join(" "),
+        "{{business}}": user?.businessName || "our team",
+        "{{service}}": lead.serviceRequested || "service request",
+      };
+      await sendEmail({
+        to: lead.email,
+        subject: fillTemplate(template.subject, values),
+        body: fillTemplate(template.body, values),
+      });
+    } catch (error) {
+      console.error("Failed to send new lead email:", error);
+    }
   }
 
   return NextResponse.json(lead, { status: 201 });
