@@ -2,6 +2,8 @@ import Link from "next/link";
 import { ArrowRight, BarChart3, Bell, Calendar, Check, ChevronDown, FileText, LayoutDashboard, Plus, Search, Settings, Users, Zap } from "lucide-react";
 import { Logo } from "@/components/brand/logo";
 
+export const dynamic = "force-static";
+
 const benefits = [
   { icon: Users, title: "Never Lose a Lead", desc: "Every call, text, and email captured automatically — stop losing jobs before you even quote." },
   { icon: Calendar, title: "Automated Follow-Ups", desc: "Never forget to follow up again. Get reminded at the right moment so more estimates turn into checks." },
