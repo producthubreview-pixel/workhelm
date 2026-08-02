@@ -226,7 +226,6 @@ export default function TemplatesPage() {
             <div className="flex items-center gap-2 mb-3">
               <span className="text-lg">{group.icon}</span>
               <h2 className="text-lg font-semibold text-gray-800">{group.label}</h2>
-              <Badge variant="secondary" className="ml-1">{group.templates.length}</Badge>
             </div>
 
             <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
