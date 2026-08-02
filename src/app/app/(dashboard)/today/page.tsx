@@ -50,6 +50,7 @@ type FollowUpRel = {
 };
 
 type EstimateRel = {
+  type: "estimate";
   id: string;
   title: string;
   amount: number | null;
@@ -60,11 +61,14 @@ type EstimateRel = {
   customer: { id: string; name: string; phone: string | null; email: string | null };
 };
 
+type LeadEstimateRel = Lead & { type: "lead" };
+type EstimateAwaiting = EstimateRel | LeadEstimateRel;
+
 type DashboardData = {
   newLeads: Lead[];
   followUpsDueToday: FollowUpRel[];
   overdueFollowUps: FollowUpRel[];
-  estimatesAwaiting: EstimateRel[];
+  estimatesAwaiting: EstimateAwaiting[];
   recentActivity: Lead[];
   counts: {
     newLeads: number;
@@ -430,7 +434,9 @@ export default function TodayPage() {
           viewAllLink="/app/estimates"
           emptyMessage="No estimates awaiting response."
         >
-          {estimatesAwaiting.map((est) => (
+          {estimatesAwaiting.map((est) => est.type === "lead" ? (
+            <LeadEstimateCard key={est.id} lead={est} />
+          ) : (
             <EstimateCard
               key={est.id}
               estimate={est}
@@ -750,6 +756,27 @@ function FollowUpCard({
         >
           <Clock className="h-3 w-3" /> Reschedule
         </button>
+      </div>
+    </div>
+  );
+}
+
+function LeadEstimateCard({ lead }: { lead: LeadEstimateRel }) {
+  return (
+    <div className="p-3 rounded-lg border border-dashed border-blue-300 bg-blue-50/40 hover:shadow-sm transition">
+      <div className="flex items-start justify-between gap-2 mb-1">
+        <div className="min-w-0">
+          <div className="flex items-center gap-2">
+            <p className="font-medium text-sm text-gray-900 truncate">{lead.firstName} {lead.lastName || ""}</p>
+            <Badge variant="outline" className="text-[10px] border-blue-300 text-blue-700">Lead</Badge>
+          </div>
+          <p className="text-xs text-gray-500">Estimated value · <span className="font-semibold text-blue-700">{formatCurrency(lead.estimatedValue)}</span></p>
+        </div>
+      </div>
+      <div className="flex flex-wrap gap-1.5 mt-2">
+        <Link href={`/app/leads/${lead.id}`} className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-md bg-blue-100 text-blue-700 hover:bg-blue-200 transition">
+          View Lead <ArrowRight className="h-3 w-3" />
+        </Link>
       </div>
     </div>
   );
