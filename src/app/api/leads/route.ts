@@ -148,24 +148,25 @@ export async function POST(req: NextRequest) {
     },
   });
 
-  // Keep FollowUp records in sync: when a lead is created with a next
-  // follow-up date, create an OPEN FollowUp so it shows up on the Follow-Ups
-  // page and the Today dashboard (both query the FollowUp table).
-  if (data.nextFollowUpAt) {
-    const followUpName =
-      [data.firstName, data.lastName].filter(Boolean).join(" ").trim() ||
-      "lead";
-    await db.followUp.create({
-      data: {
-        leadId: lead.id,
-        userId,
-        title: `Follow up with ${followUpName}`,
-        dueAt: new Date(data.nextFollowUpAt),
-        status: "OPEN",
-        notes: `Initial follow-up for ${followUpName}`,
-      },
-    });
-  }
+  // Every new lead gets an OPEN FollowUp so it shows up on the Follow-Ups
+  // page and the Today dashboard (both query the FollowUp table). When a
+  // follow-up date was provided, use it as the due date; otherwise default
+  // to the end of today so the follow-up is actionable immediately and lands
+  // in the "Due Today" tab instead of being missing.
+  const followUpName =
+    [data.firstName, data.lastName].filter(Boolean).join(" ").trim() || "lead";
+  const defaultDueAt = new Date();
+  defaultDueAt.setHours(23, 59, 59, 999);
+  await db.followUp.create({
+    data: {
+      leadId: lead.id,
+      userId,
+      title: `Follow up with ${followUpName}`,
+      dueAt: data.nextFollowUpAt ? new Date(data.nextFollowUpAt) : defaultDueAt,
+      status: "OPEN",
+      notes: `Initial follow-up for ${followUpName}`,
+    },
+  });
 
   // Notify the lead without making email delivery failure block lead creation.
   if (lead.email) {
