@@ -77,9 +77,9 @@ export async function GET() {
       orderBy: { createdAt: "desc" },
     }),
 
-    // Recently updated opportunities (leads)
+    // Recently updated opportunities (active leads only)
     db.lead.findMany({
-      where: { userId },
+      where: { userId, status: { notIn: ["WON", "LOST"] } },
       orderBy: { updatedAt: "desc" },
       take: 5,
     }),

@@ -5,6 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import { LeadForm } from "@/components/leads/lead-form";
 import { useToast } from "@/components/ui/use-toast";
 import type { LeadFormValues } from "@/lib/lead-schema";
+import { toDatetimeLocal } from "@/lib/date-utils";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
@@ -35,7 +36,7 @@ export default function EditLeadPage() {
             status: lead.status,
             priority: lead.priority,
             nextFollowUpAt: lead.nextFollowUpAt
-              ? new Date(lead.nextFollowUpAt).toISOString().slice(0, 16)
+              ? toDatetimeLocal(lead.nextFollowUpAt)
               : "",
             notes: lead.notes || "",
           });

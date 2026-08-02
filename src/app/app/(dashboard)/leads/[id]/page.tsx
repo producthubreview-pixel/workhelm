@@ -121,9 +121,7 @@ export default function LeadDetailPage() {
         serviceRequested: lead!.serviceRequested || "",
         estimatedValue: lead!.estimatedValue,
         source: lead!.source || "",
-        nextFollowUpAt: lead!.nextFollowUpAt
-          ? new Date(lead!.nextFollowUpAt).toISOString().slice(0, 16)
-          : "",
+        nextFollowUpAt: lead!.nextFollowUpAt ?? "",
       }),
     });
 

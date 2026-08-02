@@ -75,7 +75,15 @@ export function LeadForm({
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit(onSubmit)}
+        onSubmit={form.handleSubmit(async (values) => {
+          // datetime-local submits local time without a timezone (e.g. "2026-08-02T15:21").
+          // Convert to a proper UTC ISO string before sending so the server stores the
+          // correct instant and display code can convert it back to local time.
+          if (values.nextFollowUpAt) {
+            values.nextFollowUpAt = new Date(values.nextFollowUpAt).toISOString();
+          }
+          await onSubmit(values);
+        })}
         className="space-y-6"
       >
         <div className="grid md:grid-cols-2 gap-4">
