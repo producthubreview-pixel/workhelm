@@ -65,7 +65,13 @@ export default function LandingPage() {
       </header>
 
       {/* Hero */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-12 md:pt-28 md:pb-16 text-center">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-12 md:pt-24 md:pb-16 text-center">
+        <div className="flex justify-center mb-6">
+          <Logo size="lg" href="" />
+        </div>
+        <p className="text-base md:text-lg text-gray-500 font-medium mb-4">
+          WorkHelm — simple follow-up software for local service pros
+        </p>
         <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-gray-900 max-w-3xl mx-auto leading-tight">
           Stop Losing Jobs to Poor Follow-Up
         </h1>
