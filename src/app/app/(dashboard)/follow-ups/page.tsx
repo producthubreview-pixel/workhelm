@@ -407,7 +407,7 @@ export default function FollowUpsPage() {
                     : t.key === "upcoming"
                     ? "No upcoming follow-ups"
                     : t.key === "overdue"
-                    ? "No overdue follow-ups \u2014 great job!"
+                    ? "No overdue follow-ups — great job!"
                     : "No completed follow-ups"}
                 </p>
                 <p className="text-sm mt-1">
@@ -435,7 +435,7 @@ export default function FollowUpsPage() {
                                     <Clock className="h-3.5 w-3.5" />
                                     {isOverdue(fu) ? (
                                       <span className="text-red-600 font-medium">
-                                        Overdue \u2014 {formatDateTime(fu.dueAt)}
+                                        Overdue — {formatDateTime(fu.dueAt)}
                                       </span>
                                     ) : (
                                       formatDateTime(fu.dueAt)
