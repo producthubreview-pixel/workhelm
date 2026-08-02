@@ -3,6 +3,8 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { estimateFormSchema } from "@/lib/estimate-schema";
 import { Prisma } from "@prisma/client";
+import { sendEmail } from "@/lib/email";
+import { DEFAULT_TEMPLATES, fillTemplate } from "@/lib/template-defaults";
 
 export async function GET(req: NextRequest) {
   const session = await auth();
@@ -78,6 +80,11 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // Sent estimates are followed up three days later by default, matching the
+  // existing Mark as Sent flow for legacy draft estimates.
+  const threeDaysFromNow = new Date();
+  threeDaysFromNow.setDate(threeDaysFromNow.getDate() + 3);
+
   const estimate = await db.estimate.create({
     data: {
       userId,
@@ -86,13 +93,43 @@ export async function POST(req: NextRequest) {
       amount: data.amount ?? null,
       createdAt: data.createdAt ? new Date(data.createdAt) : new Date(),
       expiresAt: data.expiresAt ? new Date(data.expiresAt) : null,
+      nextFollowUpAt: threeDaysFromNow,
       notes: data.notes || null,
-      status: "DRAFT",
+      status: "SENT",
     },
     include: {
-      customer: { select: { id: true, name: true } },
+      customer: { select: { id: true, name: true, email: true } },
+      user: { select: { businessName: true } },
     },
   });
+
+  // Email delivery failures must not prevent the estimate from being created.
+  if (estimate.customer.email) {
+    try {
+      const savedTemplate = await db.messageTemplate.findFirst({
+        where: { userId, category: "ESTIMATE_SENT" },
+      });
+      const template = savedTemplate || DEFAULT_TEMPLATES.find((item) => item.category === "ESTIMATE_SENT")!;
+      const values = {
+        "{{name}}": estimate.customer.name,
+        "{{business}}": estimate.user.businessName || "our team",
+        "{{service}}": estimate.title,
+        "{{expires}}": estimate.expiresAt
+          ? estimate.expiresAt.toLocaleDateString()
+          : "the stated expiration date",
+      };
+      const amount = estimate.amount == null
+        ? "an amount to be confirmed"
+        : `$${estimate.amount.toFixed(2)}`;
+      await sendEmail({
+        to: estimate.customer.email,
+        subject: fillTemplate(template.subject, values),
+        body: `${fillTemplate(template.body, values)}\n\nEstimate amount: ${amount}\nPlease reply to this email with any questions or to approve the work.`,
+      });
+    } catch (error) {
+      console.error("Failed to send estimate email:", error);
+    }
+  }
 
   return NextResponse.json(estimate, { status: 201 });
 }
