@@ -20,12 +20,14 @@ export async function GET() {
     followUpsDueToday,
     overdueFollowUps,
     estimatesAwaiting,
+    leadsWithEstimates,
     recentActivity,
     // counts for summary bar
     newLeadsCount,
     followUpsDueCount,
     overdueFollowUpsCount,
     estimatesAwaitingCount,
+    leadsWithEstimatesCount,
   ] = await Promise.all([
     // New leads not yet contacted
     db.lead.findMany({
@@ -77,6 +79,16 @@ export async function GET() {
       orderBy: { createdAt: "desc" },
     }),
 
+    // Active leads with an estimated value (not yet terminal)
+    db.lead.findMany({
+      where: {
+        userId,
+        estimatedValue: { not: null },
+        status: { notIn: ["WON", "LOST"] },
+      },
+      orderBy: { createdAt: "desc" },
+    }),
+
     // Recently updated opportunities (active leads only)
     db.lead.findMany({
       where: { userId, status: { notIn: ["WON", "LOST"] } },
@@ -95,19 +107,27 @@ export async function GET() {
     db.estimate.count({
       where: { userId, status: { in: ["SENT", "FOLLOW_UP_DUE"] } },
     }),
+    db.lead.count({
+      where: { userId, estimatedValue: { not: null }, status: { notIn: ["WON", "LOST"] } },
+    }),
   ]);
+
+  const estimatesAwaitingResponse = [
+    ...estimatesAwaiting.map((estimate) => ({ ...estimate, type: "estimate" as const })),
+    ...leadsWithEstimates.map((lead) => ({ ...lead, type: "lead" as const })),
+  ];
 
   return NextResponse.json({
     newLeads,
     followUpsDueToday,
     overdueFollowUps,
-    estimatesAwaiting,
+    estimatesAwaiting: estimatesAwaitingResponse,
     recentActivity,
     counts: {
       newLeads: newLeadsCount,
       followUpsDue: followUpsDueCount,
       overdueFollowUps: overdueFollowUpsCount,
-      estimatesAwaiting: estimatesAwaitingCount,
+      estimatesAwaiting: estimatesAwaitingCount + leadsWithEstimatesCount,
     },
   });
 }
