@@ -168,6 +168,23 @@ export async function POST(req: NextRequest) {
     },
   });
 
+  // When a lead is created with an estimated value, it represents an active
+  // sales opportunity, so schedule the same 3-day / 10-day follow-up cadence
+  // that estimate creation uses. Their category is explicit so edits to other
+  // follow-ups cannot change which message template applies.
+  if (lead.estimatedValue != null) {
+    const followUpOneAt = new Date();
+    followUpOneAt.setDate(followUpOneAt.getDate() + 3);
+    const followUpTwoAt = new Date();
+    followUpTwoAt.setDate(followUpTwoAt.getDate() + 10);
+    await db.followUp.createMany({
+      data: [
+        { userId, leadId: lead.id, title: "Follow-Up #1", dueAt: followUpOneAt, templateCategory: "FOLLOW_UP_1", status: "OPEN" },
+        { userId, leadId: lead.id, title: "Follow-Up #2", dueAt: followUpTwoAt, templateCategory: "FOLLOW_UP_2", status: "OPEN" },
+      ],
+    });
+  }
+
   // Notify the lead without making email delivery failure block lead creation.
   if (lead.email) {
     try {
