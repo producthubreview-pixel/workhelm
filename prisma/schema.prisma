@@ -190,6 +190,7 @@ model FollowUp {
   leadId      String?
   customerId  String?
   estimateId  String?
+  templateCategory MessageTemplateCategory?
   notes       String?
   status      FollowUpStatus @default(OPEN)
   completedAt DateTime?

@@ -103,6 +103,19 @@ export async function POST(req: NextRequest) {
     },
   });
 
+  // Schedule both follow-ups at creation time. Their category is explicit so
+  // edits to other follow-ups cannot change which message gets sent.
+  const followUpOneAt = new Date();
+  followUpOneAt.setDate(followUpOneAt.getDate() + 3);
+  const followUpTwoAt = new Date();
+  followUpTwoAt.setDate(followUpTwoAt.getDate() + 10);
+  await db.followUp.createMany({
+    data: [
+      { userId, estimateId: estimate.id, customerId: estimate.customerId, title: "Follow-Up #1", dueAt: followUpOneAt, templateCategory: "FOLLOW_UP_1", status: "OPEN" },
+      { userId, estimateId: estimate.id, customerId: estimate.customerId, title: "Follow-Up #2", dueAt: followUpTwoAt, templateCategory: "FOLLOW_UP_2", status: "OPEN" },
+    ],
+  });
+
   // Email delivery failures must not prevent the estimate from being created.
   if (estimate.customer.email) {
     try {

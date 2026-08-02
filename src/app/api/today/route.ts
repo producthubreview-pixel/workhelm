@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { sendDueFollowUps } from "@/lib/follow-up-sender";
 
 export async function GET() {
   const session = await auth();
@@ -9,6 +10,14 @@ export async function GET() {
   }
 
   const userId = session.user.id;
+  // Dashboard visits are the MVP trigger for due automated follow-ups. Keep
+  // this best-effort so reporting still loads if an email provider is down.
+  try {
+    await sendDueFollowUps(userId);
+  } catch (error) {
+    console.error("Failed to process due follow-ups:", error);
+  }
+
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const now = new Date();
