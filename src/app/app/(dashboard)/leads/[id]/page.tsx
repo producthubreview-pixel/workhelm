@@ -9,9 +9,6 @@ import {
   Phone,
   Mail,
   MapPin,
-  CheckCircle,
-  XCircle,
-  MessageSquare,
   Calendar,
   PlusCircle,
   Trash2,
@@ -238,40 +235,11 @@ export default function LeadDetailPage() {
 
         {/* Quick Action Buttons */}
         <div className="flex flex-wrap gap-2 pt-2 border-t">
-          {lead.status !== "CONTACTED" && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handleStatusChange("CONTACTED")}
-            >
-              <MessageSquare className="h-4 w-4 mr-1" /> Mark Contacted
-            </Button>
-          )}
           <Link href="/app/follow-ups">
             <Button variant="outline" size="sm">
               <Calendar className="h-4 w-4 mr-1" /> Schedule Follow-Up
             </Button>
           </Link>
-          {lead.status !== "WON" && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handleStatusChange("WON")}
-              className="text-green-700 border-green-300 hover:bg-green-50"
-            >
-              <CheckCircle className="h-4 w-4 mr-1" /> Mark Won
-            </Button>
-          )}
-          {lead.status !== "LOST" && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handleStatusChange("LOST")}
-              className="text-red-700 border-red-300 hover:bg-red-50"
-            >
-              <XCircle className="h-4 w-4 mr-1" /> Mark Lost
-            </Button>
-          )}
           {lead.status !== "WON" && (
             <Button variant="outline" size="sm" onClick={handleConvertToCustomer} className="text-primary">
               <PlusCircle className="h-4 w-4 mr-1" /> Convert to Customer
