@@ -104,6 +104,13 @@ export default function TemplatesPage() {
     fetchTemplates();
   }, [fetchTemplates]);
 
+  // Auto-seed templates on first visit if none exist
+  useEffect(() => {
+    if (!loading && !seeding && templates.length === 0) {
+      seedTemplates();
+    }
+  }, [loading, seeding, templates.length]);
+
   function openEdit(t: Template) {
     setEditing(t);
     setEditName(t.name);
@@ -183,22 +190,24 @@ export default function TemplatesPage() {
       <div>
         <h1 className="text-2xl font-bold text-gray-900 mb-6">Message Templates</h1>
         <div className="bg-white rounded-xl border p-12 text-center">
-          <MessageSquare className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-          <p className="text-lg text-gray-500 mb-2">No message templates yet</p>
-          <p className="text-sm text-gray-400 mb-6">
-            Get started with 7 pre-built templates for common messages.
-          </p>
-          <Button onClick={seedTemplates} disabled={seeding}>
-            {seeding ? (
-              <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" /> Creating...
-              </>
-            ) : (
-              <>
+          {seeding ? (
+            <>
+              <Loader2 className="h-12 w-12 mx-auto mb-4 text-primary animate-spin" />
+              <p className="text-lg text-gray-500 mb-2">Setting up your templates...</p>
+              <p className="text-sm text-gray-400">Creating 7 pre-built message templates for you.</p>
+            </>
+          ) : (
+            <>
+              <MessageSquare className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+              <p className="text-lg text-gray-500 mb-2">No message templates yet</p>
+              <p className="text-sm text-gray-400 mb-6">
+                Get started with 7 pre-built templates for common messages.
+              </p>
+              <Button onClick={seedTemplates} disabled={seeding}>
                 <RefreshCw className="h-4 w-4 mr-2" /> Create Default Templates
-              </>
-            )}
-          </Button>
+              </Button>
+            </>
+          )}
         </div>
       </div>
     );
