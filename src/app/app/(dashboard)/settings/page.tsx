@@ -45,6 +45,8 @@ import {
   AlertTriangle,
   FileText,
   RefreshCw,
+  Mail,
+  Copy,
 } from "lucide-react";
 
 type BillingStatus = {
@@ -80,6 +82,9 @@ export default function SettingsPage() {
   const [billingHistory, setBillingHistory] = useState<BillingHistoryItem[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
   const [leadCount, setLeadCount] = useState(0);
+  const [forwardingAddress, setForwardingAddress] = useState<string | null>(null);
+  const [forwardingLoading, setForwardingLoading] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   // Profile form
   const profileForm = useForm<ProfileFormValues>({
@@ -135,6 +140,13 @@ export default function SettingsPage() {
       if (leadsRes.ok) {
         const leads = await leadsRes.json();
         setLeadCount(leads.length);
+      }
+
+      // Fetch lead forwarding address (null when not generated yet)
+      const forwardingRes = await fetch("/api/user/forwarding");
+      if (forwardingRes.ok) {
+        const forwarding = await forwardingRes.json();
+        setForwardingAddress(forwarding.forwardingAddress || null);
       }
     } catch (err) {
       console.error("Failed to load settings:", err);
@@ -296,6 +308,38 @@ export default function SettingsPage() {
   const isNearLimit = billingStatus?.plan === "STARTER" && leadCount >= 225;
   const isNearFreeLimit = billingStatus?.plan === "FREE" && leadCount >= 4;
 
+  // Generate (or fetch) the lead forwarding address
+  const handleGenerateForwarding = async () => {
+    setForwardingLoading(true);
+    try {
+      const res = await fetch("/api/user/forwarding", { method: "POST" });
+      const data = await res.json();
+      if (res.ok && data.forwardingAddress) {
+        setForwardingAddress(data.forwardingAddress);
+        toast({ title: "Forwarding address created", description: "Forward lead emails here to turn them into leads." });
+      } else {
+        toast({ title: "Failed", description: data.error || "Could not create forwarding address.", variant: "destructive" });
+      }
+    } catch {
+      toast({ title: "Error", description: "Failed to create forwarding address.", variant: "destructive" });
+    } finally {
+      setForwardingLoading(false);
+    }
+  };
+
+  // Copy the forwarding address to the clipboard
+  const handleCopyForwarding = async () => {
+    if (!forwardingAddress) return;
+    try {
+      await navigator.clipboard.writeText(forwardingAddress);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+      toast({ title: "Copied", description: "Forwarding address copied to clipboard." });
+    } catch {
+      toast({ title: "Error", description: "Could not copy to clipboard.", variant: "destructive" });
+    }
+  };
+
   // Format date
   const formatDate = (dateStr: string | null) => {
     if (!dateStr) return "N/A";
@@ -357,7 +401,7 @@ export default function SettingsPage() {
       )}
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="w-full max-w-md grid grid-cols-3 mb-8">
+        <TabsList className="w-full max-w-md grid grid-cols-4 mb-8">
           <TabsTrigger value="profile" className="flex items-center gap-2">
             <Settings className="h-4 w-4" /> Profile
           </TabsTrigger>
@@ -366,6 +410,9 @@ export default function SettingsPage() {
           </TabsTrigger>
           <TabsTrigger value="subscription" className="flex items-center gap-2">
             <CreditCard className="h-4 w-4" /> Billing
+          </TabsTrigger>
+          <TabsTrigger value="forwarding" className="flex items-center gap-2">
+            <Mail className="h-4 w-4" /> Forwarding
           </TabsTrigger>
         </TabsList>
 
@@ -583,6 +630,111 @@ export default function SettingsPage() {
                   </Button>
                 </form>
               </Form>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Lead Forwarding Tab */}
+        <TabsContent value="forwarding">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Mail className="h-5 w-5" /> Lead Forwarding
+              </CardTitle>
+              <CardDescription>
+                Turn forwarded emails into new leads automatically
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {forwardingAddress ? (
+                <div className="space-y-4">
+                  <div>
+                    <p className="text-sm font-medium text-gray-700 mb-2">
+                      Your forwarding address
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <code className="flex-1 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-900 font-mono break-all">
+                        {forwardingAddress}
+                      </code>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={handleCopyForwarding}
+                        title="Copy to clipboard"
+                        aria-label="Copy forwarding address"
+                      >
+                        {copied ? (
+                          <Check className="h-4 w-4 text-green-600" />
+                        ) : (
+                          <Copy className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="mt-2"
+                      onClick={handleCopyForwarding}
+                    >
+                      {copied ? (
+                        <>
+                          <Check className="h-4 w-4 mr-1 text-green-600" /> Copied
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="h-4 w-4 mr-1" /> Copy Address
+                        </>
+                      )}
+                    </Button>
+                  </div>
+
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <p className="text-sm text-blue-800">
+                      Forward lead emails to this address and they&apos;ll appear
+                      as new leads. Works with Gmail auto-forwarding rules.
+                    </p>
+                  </div>
+
+                  <p className="text-xs text-gray-500">
+                    Keep this address private — anyone who has it can create
+                    leads in your account.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="bg-gray-50 border rounded-lg p-6 text-center">
+                    <Mail className="h-10 w-10 text-gray-400 mx-auto mb-3" />
+                    <h3 className="text-lg font-semibold text-gray-700 mb-1">
+                      Get your forwarding address
+                    </h3>
+                    <p className="text-sm text-gray-500 max-w-md mx-auto">
+                      Forward lead emails to your personal WorkHelm address and
+                      they&apos;ll appear as new leads. Works with Gmail
+                      auto-forwarding rules.
+                    </p>
+                    <Button
+                      className="mt-4"
+                      onClick={handleGenerateForwarding}
+                      disabled={forwardingLoading}
+                    >
+                      {forwardingLoading ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />{" "}
+                          Generating...
+                        </>
+                      ) : (
+                        <>
+                          <Mail className="h-4 w-4 mr-2" /> Generate Address
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                  <p className="text-xs text-gray-500">
+                    Your address will be unique to your account — anyone who
+                    has it can create leads in your account, so keep it private.
+                  </p>
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>

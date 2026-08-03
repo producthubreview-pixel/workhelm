@@ -67,6 +67,7 @@ model User {
   businessCategory    String?
   timezone            String?   @default("America/Chicago")
   plan                Plan      @default(FREE)
+  forwardingCode      String?   @unique
   stripeCustomerId    String?
   stripeSubscriptionId String?
   subscriptionStatus  String?   @default("trialing")
