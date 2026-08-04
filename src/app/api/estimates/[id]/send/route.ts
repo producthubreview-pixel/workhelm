@@ -37,7 +37,7 @@ export async function PATCH(
       nextFollowUpAt: threeDaysFromNow,
     },
     include: {
-      customer: { select: { id: true, name: true, phone: true, email: true } },
+      customer: { select: { id: true, name: true, phone: true, email: true, lead: { select: { id: true } } } },
       user: { select: { businessName: true } },
     },
   });
