@@ -10,7 +10,6 @@ export const leadFormSchema = z.object({
   state: z.string().optional(),
   zip: z.string().optional(),
   serviceRequested: z.string().optional(),
-  estimatedValue: z.number().positive("Must be positive").optional().nullable(),
   source: z.string().optional(),
   status: z.enum(["NEW", "CONTACTED", "ESTIMATE_NEEDED", "ESTIMATE_SENT", "FOLLOW_UP", "WON", "LOST"]),
   priority: z.enum(["LOW", "MEDIUM", "HIGH"]),

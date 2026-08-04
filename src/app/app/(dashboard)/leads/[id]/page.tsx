@@ -12,7 +12,6 @@ import {
   Calendar,
   PlusCircle,
   Trash2,
-  DollarSign,
   Tag,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -33,7 +32,6 @@ type Lead = {
   state: string | null;
   zip: string | null;
   serviceRequested: string | null;
-  estimatedValue: number | null;
   source: string | null;
   status: string;
   priority: string;
@@ -120,7 +118,6 @@ export default function LeadDetailPage() {
         state: lead!.state || "",
         zip: lead!.zip || "",
         serviceRequested: lead!.serviceRequested || "",
-        estimatedValue: lead!.estimatedValue,
         source: lead!.source || "",
         nextFollowUpAt: lead!.nextFollowUpAt ?? "",
       }),
@@ -318,15 +315,6 @@ export default function LeadDetailPage() {
               <div>
                 <p className="text-xs text-gray-500 uppercase mb-1">Service Requested</p>
                 <p className="text-sm font-medium">{lead.serviceRequested || "Not specified"}</p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-500 uppercase mb-1">Estimated Value</p>
-                <p className="text-sm font-medium flex items-center gap-1">
-                  <DollarSign className="h-4 w-4 text-gray-400" />
-                  {lead.estimatedValue != null
-                    ? lead.estimatedValue.toLocaleString("en-US", { minimumFractionDigits: 2 })
-                    : "—"}
-                </p>
               </div>
               <div>
                 <p className="text-xs text-gray-500 uppercase mb-1">Last Contacted</p>

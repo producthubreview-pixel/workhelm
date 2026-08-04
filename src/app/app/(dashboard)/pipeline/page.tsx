@@ -70,7 +70,6 @@ type LeadCard = {
   phone: string | null;
   email: string | null;
   serviceRequested: string | null;
-  estimatedValue: number | null;
   status: string;
   priority: string;
   nextFollowUpAt: string | null;
@@ -179,10 +178,7 @@ export default function PipelinePage() {
         const pipelineLeads = allLeads.filter((l) =>
           activeStatuses.includes(l.status)
         );
-        const pipelineValue = pipelineLeads.reduce(
-          (sum, l) => sum + (l.estimatedValue || 0),
-          0
-        );
+        const pipelineValue = 0;
         const wonThisMonth = newColumns["WON"]?.filter(
           (l) =>
             new Date(l.updatedAt) >=
@@ -523,11 +519,6 @@ function LeadCardContent({
           </p>
         )}
         <div className="flex items-center gap-3 mt-2 text-xs text-gray-400">
-          {lead.estimatedValue != null && lead.estimatedValue > 0 && (
-            <span className="font-medium text-gray-700">
-              {formatCurrency(lead.estimatedValue)}
-            </span>
-          )}
           {lead.priority === "HIGH" && (
             <span className="text-red-500 font-medium flex items-center gap-1">
               <AlertTriangle className="h-3 w-3" /> High
@@ -624,11 +615,6 @@ function MobileLeadCard({
           </p>
         )}
         <div className="flex items-center gap-3 mt-2 text-xs text-gray-400">
-          {lead.estimatedValue != null && lead.estimatedValue > 0 && (
-            <span className="font-medium text-gray-700">
-              {formatCurrency(lead.estimatedValue)}
-            </span>
-          )}
           {lead.priority === "HIGH" && (
             <span className="text-red-500 font-medium flex items-center gap-1">
               <AlertTriangle className="h-3 w-3" /> High

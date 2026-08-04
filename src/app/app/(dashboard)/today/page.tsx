@@ -29,7 +29,6 @@ type Lead = {
   phone: string | null;
   email: string | null;
   serviceRequested: string | null;
-  estimatedValue: number | null;
   status: string;
   createdAt: string;
   updatedAt: string;
@@ -678,11 +677,6 @@ function LeadCard({
       {lead.serviceRequested && (
         <p className="text-xs text-gray-500 mb-1">{lead.serviceRequested}</p>
       )}
-      <div className="flex items-center gap-2 text-xs text-gray-400 mb-2">
-        {lead.estimatedValue != null && (
-          <span className="font-medium text-gray-600">{formatCurrency(lead.estimatedValue)}</span>
-        )}
-      </div>
       <div className="flex flex-wrap gap-1.5">
         {lead.phone && (
           <a href={`tel:${lead.phone}`} className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-md bg-blue-50 text-blue-700 hover:bg-blue-100 transition">
@@ -770,7 +764,7 @@ function LeadEstimateCard({ lead }: { lead: LeadEstimateRel }) {
             <p className="font-medium text-sm text-gray-900 truncate">{lead.firstName} {lead.lastName || ""}</p>
             <Badge variant="outline" className="text-[10px] border-blue-300 text-blue-700">Lead</Badge>
           </div>
-          <p className="text-xs text-gray-500">Estimated value · <span className="font-semibold text-blue-700">{formatCurrency(lead.estimatedValue)}</span></p>
+
         </div>
       </div>
       <div className="flex flex-wrap gap-1.5 mt-2">

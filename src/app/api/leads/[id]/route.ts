@@ -63,7 +63,6 @@ export async function PUT(
       state: data.state || null,
       zip: data.zip || null,
       serviceRequested: data.serviceRequested || null,
-      estimatedValue: data.estimatedValue ?? null,
       source: data.source || null,
       status: data.status,
       priority: data.priority,
@@ -86,7 +85,12 @@ export async function PUT(
     if (existingOpen) {
       await db.followUp.update({
         where: { id: existingOpen.id },
-        data: { dueAt: new Date(data.nextFollowUpAt) },
+        data: { dueAt: new Date(data.nextFollowUpAt), templateCategory: "FOLLOW_UP" },
+      });
+      // Older leads may have accumulated multiple automatic follow-ups. Keep
+      // the workflow to one open follow-up going forward.
+      await db.followUp.deleteMany({
+        where: { leadId: id, userId, status: "OPEN", id: { not: existingOpen.id } },
       });
     } else {
       const followUpName =
@@ -99,6 +103,7 @@ export async function PUT(
           title: `Follow up with ${followUpName}`,
           dueAt: new Date(data.nextFollowUpAt),
           status: "OPEN",
+          templateCategory: "FOLLOW_UP",
           notes: `Initial follow-up for ${followUpName}`,
         },
       });
