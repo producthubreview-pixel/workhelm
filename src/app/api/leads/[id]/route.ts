@@ -153,6 +153,9 @@ export async function DELETE(
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
+  // Clean up associated records before deleting the lead
+  await db.followUp.deleteMany({ where: { leadId: id } });
+
   await db.lead.delete({ where: { id } });
 
   return NextResponse.json({ success: true });
