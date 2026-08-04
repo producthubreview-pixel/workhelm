@@ -138,7 +138,6 @@ export async function POST(req: NextRequest) {
       state: data.state || null,
       zip: data.zip || null,
       serviceRequested: data.serviceRequested || null,
-      estimatedValue: data.estimatedValue ?? null,
       source: data.source || null,
       status: data.status,
       priority: data.priority,
@@ -147,14 +146,12 @@ export async function POST(req: NextRequest) {
     },
   });
 
-  // Every new lead gets an OPEN FollowUp so it shows up on the Follow-Ups
-  // page and the Today dashboard (both query the FollowUp table). When a
-  // follow-up date was provided, use it as the due date; otherwise default
-  // to the end of today so the follow-up is actionable immediately and lands
-  // in the "Due Today" tab instead of being missing.
+  // Every new lead gets exactly one OPEN follow-up. A missing date defaults
+  // to the end of day two days from now; an explicit date is used as-is.
   const followUpName =
     [data.firstName, data.lastName].filter(Boolean).join(" ").trim() || "lead";
   const defaultDueAt = new Date();
+  defaultDueAt.setDate(defaultDueAt.getDate() + 2);
   defaultDueAt.setHours(23, 59, 59, 999);
   await db.followUp.create({
     data: {
@@ -163,26 +160,11 @@ export async function POST(req: NextRequest) {
       title: `Follow up with ${followUpName}`,
       dueAt: data.nextFollowUpAt ? new Date(data.nextFollowUpAt) : defaultDueAt,
       status: "OPEN",
+      templateCategory: "FOLLOW_UP",
       notes: `Initial follow-up for ${followUpName}`,
     },
   });
 
-  // When a lead is created with an estimated value, it represents an active
-  // sales opportunity, so schedule the same 3-day / 10-day follow-up cadence
-  // that estimate creation uses. Their category is explicit so edits to other
-  // follow-ups cannot change which message template applies.
-  if (lead.estimatedValue != null) {
-    const followUpOneAt = new Date();
-    followUpOneAt.setDate(followUpOneAt.getDate() + 3);
-    const followUpTwoAt = new Date();
-    followUpTwoAt.setDate(followUpTwoAt.getDate() + 10);
-    await db.followUp.createMany({
-      data: [
-        { userId, leadId: lead.id, title: "Follow-Up #1", dueAt: followUpOneAt, templateCategory: "FOLLOW_UP", status: "OPEN" },
-        { userId, leadId: lead.id, title: "Follow-Up #2", dueAt: followUpTwoAt, templateCategory: "FOLLOW_UP", status: "OPEN" },
-      ],
-    });
-  }
 
   // Notify the lead without making email delivery failure block lead creation.
   // sendTemplateEmail never throws and returns false when the template is
