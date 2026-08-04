@@ -36,9 +36,6 @@ export default function EditEstimatePage() {
             customerId: est.customerId,
             title: est.title,
             amount: est.amount,
-            createdAt: est.createdAt
-              ? new Date(est.createdAt).toISOString().split("T")[0]
-              : "",
             expiresAt: est.expiresAt
               ? new Date(est.expiresAt).toISOString().split("T")[0]
               : "",

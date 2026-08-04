@@ -21,7 +21,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { EstimateStatusBadge } from "@/components/estimates/estimate-status-badge";
 import { useToast } from "@/components/ui/use-toast";
-import { formatDateTime, formatDate } from "@/lib/date-utils";
+import { formatDate } from "@/lib/date-utils";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -333,10 +333,6 @@ export default function EstimateDetailPage() {
               <div>
                 <p className="text-xs text-gray-500 uppercase mb-1">Status</p>
                 <EstimateStatusBadge status={estimate.status} />
-              </div>
-              <div>
-                <p className="text-xs text-gray-500 uppercase mb-1">Created</p>
-                <p className="text-sm">{formatDateTime(estimate.createdAt)}</p>
               </div>
               <div>
                 <p className="text-xs text-gray-500 uppercase mb-1">Expires</p>

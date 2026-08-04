@@ -40,6 +40,7 @@ type Lead = {
   notes: string | null;
   createdAt: string;
   updatedAt: string;
+  customer?: { id: string } | null;
 };
 
 export default function LeadDetailPage() {
@@ -237,7 +238,7 @@ export default function LeadDetailPage() {
               <Calendar className="h-4 w-4 mr-1" /> Schedule Follow-Up
             </Button>
           </Link>
-          {lead.status !== "WON" && (
+          {!lead.customer && lead.status !== "WON" && (
             <Button variant="outline" size="sm" onClick={handleConvertToCustomer} className="text-primary">
               <PlusCircle className="h-4 w-4 mr-1" /> Convert to Customer
             </Button>

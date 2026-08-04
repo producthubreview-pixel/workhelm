@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { EstimateForm } from "@/components/estimates/estimate-form";
@@ -11,9 +11,11 @@ import type { EstimateFormValues } from "@/lib/estimate-schema";
 export default function NewEstimatePage() {
   const router = useRouter();
   const { toast } = useToast();
+  const searchParams = useSearchParams();
   const [customers, setCustomers] = useState<{ id: string; name: string }[]>([]);
   const [loadingCustomers, setLoadingCustomers] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [defaultValues, setDefaultValues] = useState<Partial<EstimateFormValues>>({});
 
   useEffect(() => {
     async function fetchCustomers() {
@@ -21,7 +23,21 @@ export default function NewEstimatePage() {
         const res = await fetch("/api/customers?archived=false");
         if (res.ok) {
           const data = await res.json();
-          setCustomers(data.map((c: any) => ({ id: c.id, name: c.name })));
+          const options = data.map((c: any) => ({ id: c.id, name: c.name }));
+          setCustomers(options);
+          const customerId = searchParams.get("customerId");
+          const leadId = searchParams.get("leadId");
+          const defaults: Partial<EstimateFormValues> = {};
+          if (customerId && options.some((c: { id: string }) => c.id === customerId)) defaults.customerId = customerId;
+          if (leadId) {
+            const leadRes = await fetch(`/api/leads/${leadId}`);
+            if (leadRes.ok) {
+              const lead = await leadRes.json();
+              if (lead.customer?.id) defaults.customerId = lead.customer.id;
+              if (lead.serviceRequested) defaults.title = lead.serviceRequested;
+            }
+          }
+          setDefaultValues(defaults);
         }
       } catch (err) {
         console.error("Failed to fetch customers:", err);
@@ -30,7 +46,7 @@ export default function NewEstimatePage() {
       }
     }
     fetchCustomers();
-  }, []);
+  }, [searchParams]);
 
   async function handleSubmit(values: EstimateFormValues) {
     setSubmitting(true);
@@ -87,6 +103,7 @@ export default function NewEstimatePage() {
         <h1 className="text-xl font-bold text-gray-900 mb-6">Create & Send Estimate</h1>
         <EstimateForm
           customers={customers}
+          defaultValues={defaultValues}
           onSubmit={handleSubmit}
           submitLabel="Create & Send"
           isLoading={submitting}

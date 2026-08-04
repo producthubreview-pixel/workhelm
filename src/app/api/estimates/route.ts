@@ -90,7 +90,6 @@ export async function POST(req: NextRequest) {
       customerId: data.customerId,
       title: data.title,
       amount: data.amount ?? null,
-      createdAt: data.createdAt ? new Date(data.createdAt) : new Date(),
       expiresAt: data.expiresAt ? new Date(data.expiresAt) : null,
       nextFollowUpAt: threeDaysFromNow,
       notes: data.notes || null,

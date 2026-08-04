@@ -42,6 +42,31 @@ export async function PATCH(
     },
   });
 
+  // Sending an estimate should have exactly one automatic follow-up. Reuse an
+  // existing follow-up (including one created by the estimate creation flow)
+  // rather than creating duplicates on retries.
+  const existingFollowUp = await db.followUp.findFirst({
+    where: { estimateId: id, userId: session.user.id },
+  });
+  if (!existingFollowUp) {
+    await db.followUp.create({
+      data: {
+        userId: session.user.id,
+        estimateId: id,
+        customerId: updated.customerId,
+        title: "Estimate follow-up",
+        dueAt: threeDaysFromNow,
+        templateCategory: "FOLLOW_UP",
+        status: "OPEN",
+      },
+    });
+  }
+
+  // Keep the linked lead's pipeline stage in sync with the estimate lifecycle.
+  if (updated.customer.lead?.id) {
+    await db.lead.update({ where: { id: updated.customer.lead.id }, data: { status: "ESTIMATE_SENT" } });
+  }
+
   if (updated.customer.email) {
     try {
       const amount =
