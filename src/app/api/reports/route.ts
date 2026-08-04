@@ -37,11 +37,6 @@ export async function GET(req: NextRequest) {
     createdAt: { gte: startDate, lte: endDate },
   };
 
-  const followUpDateFilter = {
-    userId,
-    createdAt: { gte: startDate, lte: endDate },
-  };
-
   try {
     // Start with just lead counts to isolate the issue
     const totalLeads = await db.lead.count({ where: leadDateFilter });
@@ -76,27 +71,7 @@ export async function GET(req: NextRequest) {
       var pipelineValueResult = { _sum: { estimatedValue: null } };
     }
 
-    try {
-      var followUpsCompleted = await db.followUp.count({
-        where: { ...followUpDateFilter, status: "COMPLETED" },
-      });
-      var totalFollowUps = await db.followUp.count({ where: followUpDateFilter });
-      var overdueFollowUps = await db.followUp.count({
-        where: { userId, status: "OPEN", dueAt: { lt: new Date() } },
-      });
-    } catch (e) {
-      console.error("FollowUp query error:", e);
-      var followUpsCompleted = 0;
-      var totalFollowUps = 0;
-      var overdueFollowUps = 0;
-    }
-
-  const followUpCompletionRate =
-    totalFollowUps > 0
-      ? Math.round((followUpsCompleted / totalFollowUps) * 100)
-      : 0;
-
-  const pipelineValue = pipelineValueResult._sum.estimatedValue ?? 0;
+    const pipelineValue = pipelineValueResult._sum.estimatedValue ?? 0;
 
   return NextResponse.json({
     totalLeads,
@@ -111,10 +86,6 @@ export async function GET(req: NextRequest) {
     estimatesDeclinedPct:
       estimatesSent > 0 ? Math.round((estimatesDeclined / estimatesSent) * 100) : 0,
     pipelineValue,
-    followUpsCompleted,
-    overdueFollowUps,
-    totalFollowUps,
-    followUpCompletionRate,
     leadsWonPct:
       totalLeads > 0 ? Math.round((leadsWon / totalLeads) * 100) : 0,
     leadsLostPct:

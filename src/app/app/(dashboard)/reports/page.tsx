@@ -4,7 +4,6 @@ import { useEffect, useState, useCallback } from "react";
 import {
   Users, Trophy, XCircle, TrendingUp,
   FileText, CheckCircle, ThumbsDown, DollarSign,
-  Calendar, AlertTriangle, Percent,
   Loader2, RefreshCw,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -28,10 +27,6 @@ type ReportsData = {
   estimatesAcceptedPct: number;
   estimatesDeclinedPct: number;
   pipelineValue: number;
-  followUpsCompleted: number;
-  overdueFollowUps: number;
-  totalFollowUps: number;
-  followUpCompletionRate: number;
 };
 
 type DateRange = "thisWeek" | "thisMonth" | "lastMonth" | "custom";
@@ -464,62 +459,7 @@ export default function ReportsPage() {
         </div>
       </div>
 
-      {/* ─── 3. Follow-Up Stats Row ──────────────────────────────────── */}
-      <div className="mb-8">
-        <h2 className="text-lg font-semibold text-gray-800 mb-3">Follow-Ups</h2>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
-          <StatCard
-            label="Follow-Ups Completed"
-            value={data.followUpsCompleted.toString()}
-            icon={Calendar}
-            colorClass="text-green-600 bg-green-50"
-          />
-          <StatCard
-            label="Overdue Follow-Ups"
-            value={data.overdueFollowUps.toString()}
-            icon={AlertTriangle}
-            colorClass={
-              data.overdueFollowUps > 0
-                ? "text-red-600 bg-red-50"
-                : "text-gray-600 bg-gray-50"
-            }
-          >
-            {data.overdueFollowUps > 0 && (
-              <p className="text-xs text-red-500 mt-1 font-medium">
-                Action needed!
-              </p>
-            )}
-          </StatCard>
-          <StatCard
-            label="Completion Rate"
-            value={`${data.followUpCompletionRate}%`}
-            sub={`${data.followUpsCompleted} of ${data.totalFollowUps} total`}
-            icon={Percent}
-            colorClass={
-              data.followUpCompletionRate >= 70
-                ? "text-green-600 bg-green-50"
-                : data.followUpCompletionRate >= 40
-                ? "text-amber-600 bg-amber-50"
-                : "text-red-600 bg-red-50"
-            }
-            progressBar={
-              <ProgressBar
-                value={data.followUpsCompleted}
-                max={data.totalFollowUps}
-                color={
-                  data.followUpCompletionRate >= 70
-                    ? "green"
-                    : data.followUpCompletionRate >= 40
-                    ? "amber"
-                    : "red"
-                }
-              />
-            }
-          />
-        </div>
-      </div>
-
-      {/* ─── 4. Win/Loss Visual ──────────────────────────────────────── */}
+      {/* ─── 3. Win/Loss Visual ──────────────────────────────────────── */}
       {data.leadsWon + data.leadsLost > 0 && (
         <div>
           <h2 className="text-lg font-semibold text-gray-800 mb-3">
