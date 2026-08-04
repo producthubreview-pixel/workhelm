@@ -3,8 +3,7 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { leadFormSchema } from "@/lib/lead-schema";
 import { Prisma } from "@prisma/client";
-import { sendEmail } from "@/lib/email";
-import { DEFAULT_TEMPLATES, fillTemplate } from "@/lib/template-defaults";
+import { sendTemplateEmail } from "@/lib/email";
 
 export async function GET(req: NextRequest) {
   const session = await auth();
@@ -179,29 +178,27 @@ export async function POST(req: NextRequest) {
     followUpTwoAt.setDate(followUpTwoAt.getDate() + 10);
     await db.followUp.createMany({
       data: [
-        { userId, leadId: lead.id, title: "Follow-Up #1", dueAt: followUpOneAt, templateCategory: "FOLLOW_UP_1", status: "OPEN" },
-        { userId, leadId: lead.id, title: "Follow-Up #2", dueAt: followUpTwoAt, templateCategory: "FOLLOW_UP_2", status: "OPEN" },
+        { userId, leadId: lead.id, title: "Follow-Up #1", dueAt: followUpOneAt, templateCategory: "FOLLOW_UP", status: "OPEN" },
+        { userId, leadId: lead.id, title: "Follow-Up #2", dueAt: followUpTwoAt, templateCategory: "FOLLOW_UP", status: "OPEN" },
       ],
     });
   }
 
   // Notify the lead without making email delivery failure block lead creation.
+  // sendTemplateEmail never throws and returns false when the template is
+  // disabled or delivery fails — the response is unaffected either way.
   if (lead.email) {
     try {
-      const savedTemplate = await db.messageTemplate.findFirst({
-        where: { userId, category: "NEW_LEAD" },
-      });
-      const template = savedTemplate || DEFAULT_TEMPLATES.find((item) => item.category === "NEW_LEAD")!;
-      const values = {
-        "{{name}}": [lead.firstName, lead.lastName].filter(Boolean).join(" "),
-        "{{business}}": user?.businessName || "our team",
-        "{{service}}": lead.serviceRequested || "service request",
-      };
-      await sendEmail({
-        to: lead.email,
-        subject: fillTemplate(template.subject, values),
-        body: fillTemplate(template.body, values),
-      });
+      await sendTemplateEmail(
+        "NEW_LEAD",
+        lead.email,
+        [lead.firstName, lead.lastName].filter(Boolean).join(" ") || lead.firstName,
+        {
+          "{{business}}": user?.businessName || "our team",
+          "{{service}}": lead.serviceRequested || "service request",
+        },
+        userId
+      );
     } catch (error) {
       console.error("Failed to send new lead email:", error);
     }

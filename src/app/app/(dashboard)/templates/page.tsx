@@ -34,14 +34,15 @@ type Template = {
   subject: string;
   body: string;
   category: MessageTemplateCategory;
+  enabled: boolean;
   updatedAt: string;
 };
 
 const CATEGORY_ORDER: MessageTemplateCategory[] = [
   "NEW_LEAD",
   "ESTIMATE_SENT",
-  "FOLLOW_UP_1",
-  "FOLLOW_UP_2",
+  "ESTIMATE_UPDATED",
+  "FOLLOW_UP",
   "APPOINTMENT",
   "THANK_YOU",
   "REVIEW_REQUEST",
@@ -61,6 +62,36 @@ export default function TemplatesPage() {
   const [saving, setSaving] = useState(false);
   const [previewMode, setPreviewMode] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [togglingId, setTogglingId] = useState<string | null>(null);
+
+  async function toggleEnabled(t: Template) {
+    setTogglingId(t.id);
+    try {
+      const res = await fetch(`/api/templates/${t.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ enabled: !t.enabled }),
+      });
+      if (res.ok) {
+        const updated = await res.json();
+        setTemplates((prev) =>
+          prev.map((item) => (item.id === updated.id ? updated : item))
+        );
+        toast({
+          title: updated.enabled ? "Template enabled" : "Template disabled",
+          description: updated.enabled
+            ? "This template will be used for automatic emails."
+            : "Automatic emails using this template are paused.",
+        });
+      } else {
+        toast({ title: "Failed to update template", variant: "destructive" });
+      }
+    } catch {
+      toast({ title: "Failed to update template", variant: "destructive" });
+    } finally {
+      setTogglingId(null);
+    }
+  }
 
   const fetchTemplates = useCallback(async () => {
     setLoading(true);
@@ -225,8 +256,10 @@ export default function TemplatesPage() {
       </div>
 
       <p className="text-sm text-gray-500 mb-6">
-        Edit your message templates and copy them to clipboard when you need to send a message.
-        Variables like {`{{name}}`} are filled in with customer data.
+        Templates are used for automatic emails — a new lead, a sent or updated estimate,
+        and a completed job. Turn one off to pause those emails. You can also copy any
+        template to the clipboard to send it yourself. Variables like {`{{customer_name}}`} are
+        filled in with real customer data when the email is sent.
       </p>
 
       <div className="space-y-6">
@@ -241,7 +274,7 @@ export default function TemplatesPage() {
               {group.templates.map((t) => (
                 <Card
                   key={t.id}
-                  className="hover:shadow-md transition-shadow cursor-pointer group"
+                  className={`${t.enabled ? "" : "opacity-50"} hover:shadow-md transition-shadow cursor-pointer group`}
                   onClick={() => openEdit(t)}
                 >
                   <CardContent className="p-4">
@@ -271,9 +304,29 @@ export default function TemplatesPage() {
                       {t.body}
                     </p>
                     <div className="mt-3 pt-2 border-t flex items-center justify-between">
-                      <span className="text-xs text-gray-400">
-                        Click to edit
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <button
+                          role="switch"
+                          aria-checked={t.enabled}
+                          aria-label={`${t.enabled ? "Disable" : "Enable"} ${t.name}`}
+                          disabled={togglingId === t.id}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleEnabled(t);
+                          }}
+                          className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-1 disabled:opacity-50 ${t.enabled ? "bg-primary" : "bg-gray-300"}`}
+                          title={t.enabled ? "Disable automatic emails" : "Enable automatic emails"}
+                        >
+                          <span
+                            className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
+                              t.enabled ? "translate-x-[18px]" : "translate-x-0.5"
+                            }`}
+                          />
+                        </button>
+                        <span className="text-xs text-gray-400">
+                          {togglingId === t.id ? "Saving..." : t.enabled ? "Auto-send on" : "Disabled"}
+                        </span>
+                      </div>
                       <button
                         className="px-2 py-1 text-xs font-medium rounded-md bg-primary/10 text-primary hover:bg-primary/20 transition"
                         onClick={(e) => {

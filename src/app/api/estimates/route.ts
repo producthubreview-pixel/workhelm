@@ -3,8 +3,7 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { estimateFormSchema } from "@/lib/estimate-schema";
 import { Prisma } from "@prisma/client";
-import { sendEmail } from "@/lib/email";
-import { DEFAULT_TEMPLATES, fillTemplate } from "@/lib/template-defaults";
+import { sendTemplateEmail } from "@/lib/email";
 
 export async function GET(req: NextRequest) {
   const session = await auth();
@@ -111,34 +110,34 @@ export async function POST(req: NextRequest) {
   followUpTwoAt.setDate(followUpTwoAt.getDate() + 10);
   await db.followUp.createMany({
     data: [
-      { userId, estimateId: estimate.id, customerId: estimate.customerId, title: "Follow-Up #1", dueAt: followUpOneAt, templateCategory: "FOLLOW_UP_1", status: "OPEN" },
-      { userId, estimateId: estimate.id, customerId: estimate.customerId, title: "Follow-Up #2", dueAt: followUpTwoAt, templateCategory: "FOLLOW_UP_2", status: "OPEN" },
+      { userId, estimateId: estimate.id, customerId: estimate.customerId, title: "Follow-Up #1", dueAt: followUpOneAt, templateCategory: "FOLLOW_UP", status: "OPEN" },
+      { userId, estimateId: estimate.id, customerId: estimate.customerId, title: "Follow-Up #2", dueAt: followUpTwoAt, templateCategory: "FOLLOW_UP", status: "OPEN" },
     ],
   });
 
   // Email delivery failures must not prevent the estimate from being created.
+  // sendTemplateEmail never throws and returns false when the template is
+  // disabled or delivery fails — the response is unaffected either way.
   if (estimate.customer.email) {
     try {
-      const savedTemplate = await db.messageTemplate.findFirst({
-        where: { userId, category: "ESTIMATE_SENT" },
-      });
-      const template = savedTemplate || DEFAULT_TEMPLATES.find((item) => item.category === "ESTIMATE_SENT")!;
-      const values = {
-        "{{name}}": estimate.customer.name,
-        "{{business}}": estimate.user.businessName || "our team",
-        "{{service}}": estimate.title,
-        "{{expires}}": estimate.expiresAt
-          ? estimate.expiresAt.toLocaleDateString()
-          : "the stated expiration date",
-      };
-      const amount = estimate.amount == null
-        ? "an amount to be confirmed"
-        : `$${estimate.amount.toFixed(2)}`;
-      await sendEmail({
-        to: estimate.customer.email,
-        subject: fillTemplate(template.subject, values),
-        body: `${fillTemplate(template.body, values)}\n\nEstimate amount: ${amount}\nPlease reply to this email with any questions or to approve the work.`,
-      });
+      const amount =
+        estimate.amount == null
+          ? "to be confirmed"
+          : `${estimate.amount.toFixed(2)}`;
+      await sendTemplateEmail(
+        "ESTIMATE_SENT",
+        estimate.customer.email,
+        estimate.customer.name,
+        {
+          "{{business}}": estimate.user.businessName || "our team",
+          "{{service}}": estimate.title,
+          "{{estimate_amount}}": amount,
+          "{{expires}}": estimate.expiresAt
+            ? estimate.expiresAt.toLocaleDateString()
+            : "the stated expiration date",
+        },
+        userId
+      );
     } catch (error) {
       console.error("Failed to send estimate email:", error);
     }

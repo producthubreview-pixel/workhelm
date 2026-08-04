@@ -1,6 +1,5 @@
 import { db } from "@/lib/db";
-import { sendEmail } from "@/lib/email";
-import { DEFAULT_TEMPLATES, fillTemplate } from "@/lib/template-defaults";
+import { sendTemplateEmail } from "@/lib/email";
 
 /**
  * Sends due lead and estimate follow-ups for one owner. Failed sends remain open for retry.
@@ -68,23 +67,32 @@ async function sendDueFollowUpsUnsafe(userId?: string): Promise<{ processed: num
         : null;
     if (!recipient?.email) continue;
 
-    const category = followUp.templateCategory === "FOLLOW_UP_2" ? "FOLLOW_UP_2" : "FOLLOW_UP_1";
+    // If the owner disabled the FOLLOW_UP template, complete the follow-up
+    // without sending so it doesn't retry on every dashboard visit.
+    const savedTemplate = await db.messageTemplate.findFirst({
+      where: { userId: followUp.userId, category: "FOLLOW_UP" },
+      select: { enabled: true },
+    });
+    if (savedTemplate && !savedTemplate.enabled) {
+      await db.followUp.update({
+        where: { id: followUp.id },
+        data: { status: "COMPLETED", completedAt: new Date() },
+      });
+      continue;
+    }
+
     try {
-      const savedTemplate = await db.messageTemplate.findFirst({
-        where: { userId: followUp.userId, category },
-      });
-      const template = savedTemplate || DEFAULT_TEMPLATES.find((item) => item.category === category)!;
-      const values = {
-        "{{name}}": recipient.name,
-        "{{business}}": recipient.business || "our team",
-        "{{service}}": recipient.service,
-        "{{expires}}": recipient.expires,
-      };
-      const delivered = await sendEmail({
-        to: recipient.email,
-        subject: fillTemplate(template.subject, values),
-        body: fillTemplate(template.body, values),
-      });
+      const delivered = await sendTemplateEmail(
+        "FOLLOW_UP",
+        recipient.email,
+        recipient.name,
+        {
+          "{{business}}": recipient.business || "our team",
+          "{{service}}": recipient.service,
+          "{{expires}}": recipient.expires,
+        },
+        followUp.userId
+      );
       if (!delivered) continue;
 
       await db.followUp.update({

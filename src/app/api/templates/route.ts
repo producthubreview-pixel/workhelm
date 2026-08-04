@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Seed default templates
+  // Seed default templates (one per category — 7 total)
   const created = await db.messageTemplate.createMany({
     data: DEFAULT_TEMPLATES.map((t) => ({
       userId,
@@ -47,6 +47,7 @@ export async function POST(req: NextRequest) {
       subject: t.subject,
       body: t.body,
       category: t.category,
+      enabled: true,
     })),
   });
 

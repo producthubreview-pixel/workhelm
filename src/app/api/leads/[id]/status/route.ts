@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { z } from "zod";
+import { sendTemplateEmail } from "@/lib/email";
 
 const statusSchema = z.object({
   status: z.enum(["NEW", "CONTACTED", "ESTIMATE_NEEDED", "ESTIMATE_SENT", "FOLLOW_UP", "WON", "LOST"]),
@@ -50,6 +51,29 @@ export async function PATCH(
       where: { leadId: id, userId: session.user.id, status: "OPEN" },
       data: { status: "COMPLETED", completedAt: new Date() },
     });
+  }
+
+  // Job won → send the thank-you template. Email failure must never break the
+  // status change response (sendTemplateEmail never throws).
+  if (parsed.data.status === "WON" && lead.status !== "WON" && lead.email) {
+    try {
+      const user = await db.user.findUnique({
+        where: { id: session.user.id },
+        select: { businessName: true },
+      });
+      await sendTemplateEmail(
+        "THANK_YOU",
+        lead.email,
+        [lead.firstName, lead.lastName].filter(Boolean).join(" ") || lead.firstName,
+        {
+          "{{business}}": user?.businessName || "our team",
+          "{{service}}": lead.serviceRequested || "recent job",
+        },
+        session.user.id
+      );
+    } catch (error) {
+      console.error("Failed to send thank-you email:", error);
+    }
   }
 
   return NextResponse.json(updated);

@@ -1,4 +1,7 @@
 import { Resend } from "resend";
+import { MessageTemplateCategory } from "@prisma/client";
+import { db } from "@/lib/db";
+import { DEFAULT_TEMPLATES, fillTemplate } from "@/lib/template-defaults";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 const fromAddress = "hello@getworkhelm.com";
@@ -37,6 +40,60 @@ export async function sendEmail({ to, subject, body, html }: SendEmailParams): P
   } catch (err) {
     console.error("Email send failed:", err);
     console.error("Resend API key prefix:", process.env.RESEND_API_KEY?.substring(0, 8));
+    return false;
+  }
+}
+
+/**
+ * Sends a message-template email (NEW_LEAD, ESTIMATE_SENT, ...) to a lead or
+ * customer using the owner's saved template for that category.
+ *
+ * - Looks up the owner's template for `category`; if none is saved yet it falls
+ *   back to the built-in default template.
+ * - Returns false (and sends nothing) when the saved template is disabled.
+ * - Never throws: callers can fire-and-forget and rely on the boolean result.
+ */
+export async function sendTemplateEmail(
+  category: MessageTemplateCategory,
+  recipientEmail: string,
+  recipientName: string,
+  variables: Record<string, string>,
+  userId?: string
+): Promise<boolean> {
+  try {
+    let template: { subject: string; body: string; enabled?: boolean } | null = null;
+    if (userId) {
+      const saved = await db.messageTemplate.findFirst({
+        where: { userId, category },
+        select: { subject: true, body: true, enabled: true },
+      });
+      if (saved) {
+        if (!saved.enabled) {
+          console.log(`[EMAIL SKIPPED] Template "${category}" is disabled — no email to ${recipientEmail}`);
+          return false;
+        }
+        template = saved;
+      }
+    }
+    if (!template) {
+      template = DEFAULT_TEMPLATES.find((item) => item.category === category) ?? null;
+    }
+    if (!template) {
+      console.error(`No template found for category ${category}`);
+      return false;
+    }
+
+    // The recipient name is always available to templates, even if the caller
+    // forgot to pass it in variables.
+    const data = { "{{customer_name}}": recipientName, ...variables };
+
+    return await sendEmail({
+      to: recipientEmail,
+      subject: fillTemplate(template.subject, data),
+      body: fillTemplate(template.body, data),
+    });
+  } catch (error) {
+    console.error(`Failed to send ${category} template email to ${recipientEmail}:`, error);
     return false;
   }
 }
