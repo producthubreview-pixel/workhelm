@@ -29,14 +29,14 @@ export const DEFAULT_TEMPLATES: DefaultTemplate[] = [
   {
     category: "FOLLOW_UP",
     name: "Follow-Up",
-    subject: "Checking in on your {{service}} estimate",
-    body: "Hi {{customer_name}},\n\nI wanted to check in on the estimate we sent for your {{service}} project. Do you have any questions, or is there anything we can adjust to make it work for you? If the timing isn't right, no worries — just let us know.\n\nBest,\n{{business}}",
+    subject: "Checking in, {{customer_name}}",
+    body: "Hi {{customer_name}},\n\nJust checking in — how's everything going with your {{service}}? Let us know if you have any questions or if there's anything we can help with.\n\nYou can reach us at {{phone}}.\n\nBest,\n{{business}}",
   },
   {
     category: "APPOINTMENT",
-    name: "Appointment Confirmation",
-    subject: "Appointment confirmed: {{appointment_date}}",
-    body: "Hi {{customer_name}},\n\nThis is a confirmation of your appointment with {{business}}:\n\nDate: {{appointment_date}}\nTime: {{appointment_time}}\nLocation: {{address}}\n\nIf you need to reschedule or have any questions, just reply to this email or call us.\n\nThanks,\n{{business}}",
+    name: "Appointment Reminder",
+    subject: "Reminder: your appointment on {{appointment_date}}",
+    body: "Hi {{customer_name}},\n\nJust a reminder about your upcoming appointment with {{business}}:\n\nDate: {{appointment_date}}\nTime: {{appointment_time}}\nLocation: {{address}}\n\nIf you need to reschedule or have any questions, just reply to this email or call us at {{phone}}.\n\nThanks,\n{{business}}",
   },
   {
     category: "THANK_YOU",
@@ -48,7 +48,7 @@ export const DEFAULT_TEMPLATES: DefaultTemplate[] = [
     category: "REVIEW_REQUEST",
     name: "Review Request",
     subject: "How did we do, {{customer_name}}?",
-    body: "Hi {{customer_name}},\n\nWe hope you're happy with the {{service}} work we completed. If you have a moment, we'd really appreciate a review — it helps other homeowners in the area find us.\n\nThank you for your support!\n{{business}}",
+    body: "Hi {{customer_name}},\n\nWe hope you're happy with the {{service}} work we completed. If you have a moment, we'd really appreciate a review — it helps other homeowners in the area find us.\n\nLeave a review here: {{review_link}}\n\nThank you for your support!\n{{business}}",
   },
 ];
 
@@ -61,6 +61,8 @@ export const PLACEHOLDER_VARIABLES = [
   { key: "{{appointment_date}}", label: "Appointment date" },
   { key: "{{appointment_time}}", label: "Appointment time" },
   { key: "{{address}}", label: "Service address" },
+  { key: "{{phone}}", label: "Your phone number" },
+  { key: "{{review_link}}", label: "Link to leave a review" },
 ];
 
 export const CATEGORY_LABELS: Record<MessageTemplateCategory, string> = {
@@ -92,6 +94,8 @@ export const SAMPLE_DATA: Record<string, string> = {
   "{{appointment_date}}": "Monday, July 10, 2026",
   "{{appointment_time}}": "10:00 AM",
   "{{address}}": "123 Main Street, Springfield, IL 62701",
+  "{{phone}}": "(555) 123-4567",
+  "{{review_link}}": "https://g.page/your-business/review",
 };
 
 export function fillTemplate(template: string, data: Record<string, string>): string {
