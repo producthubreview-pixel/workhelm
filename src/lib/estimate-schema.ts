@@ -4,7 +4,6 @@ export const estimateFormSchema = z.object({
   customerId: z.string().min(1, "Customer is required"),
   title: z.string().min(1, "Title is required"),
   amount: z.number().positive("Must be positive").optional().nullable(),
-  createdAt: z.string().optional(),
   expiresAt: z.string().optional().or(z.literal("")),
   notes: z.string().optional().or(z.literal("")),
 });

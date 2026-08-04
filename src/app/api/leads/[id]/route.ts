@@ -15,7 +15,7 @@ export async function GET(
 
   const { id } = await params;
 
-  const lead = await db.lead.findUnique({ where: { id } });
+  const lead = await db.lead.findUnique({ where: { id }, include: { customer: { select: { id: true } } } });
   if (!lead || lead.userId !== session.user.id) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }

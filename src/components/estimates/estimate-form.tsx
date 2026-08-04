@@ -48,7 +48,6 @@ export function EstimateForm({
       customerId: "",
       title: "",
       amount: null,
-      createdAt: new Date().toISOString().split("T")[0],
       expiresAt: "",
       notes: "",
       ...defaultValues,
@@ -126,19 +125,6 @@ export function EstimateForm({
         <div className="grid md:grid-cols-2 gap-4">
           <FormField
             control={form.control}
-            name="createdAt"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Date Created</FormLabel>
-                <FormControl>
-                  <Input type="date" value={field.value ?? ""} onChange={field.onChange} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
             name="expiresAt"
             render={({ field }) => (
               <FormItem>
@@ -157,7 +143,7 @@ export function EstimateForm({
           name="notes"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Notes</FormLabel>
+              <FormLabel>Scope of Work</FormLabel>
               <FormControl>
                 <Textarea
                   placeholder="Scope of work, materials, etc."
