@@ -31,7 +31,6 @@ export default function EditLeadPage() {
             state: lead.state || "",
             zip: lead.zip || "",
             serviceRequested: lead.serviceRequested || "",
-            estimatedValue: lead.estimatedValue,
             source: lead.source || "",
             status: lead.status,
             priority: lead.priority,

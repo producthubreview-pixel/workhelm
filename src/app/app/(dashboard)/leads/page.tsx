@@ -35,7 +35,6 @@ type Lead = {
   state: string | null;
   zip: string | null;
   serviceRequested: string | null;
-  estimatedValue: number | null;
   source: string | null;
   status: string;
   priority: string;
@@ -192,7 +191,6 @@ export default function LeadsPage() {
                   <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase">Service</th>
                   <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase">Status</th>
                   <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase">Priority</th>
-                  <th className="text-right px-4 py-3 text-xs font-medium text-gray-500 uppercase">Est. Value</th>
                   <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase">Last Contacted</th>
                   <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase">Next Follow-Up</th>
                   <th className="text-right px-4 py-3 text-xs font-medium text-gray-500 uppercase"></th>
@@ -228,11 +226,6 @@ export default function LeadsPage() {
                     </td>
                     <td className="px-4 py-3">
                       <PriorityBadge priority={lead.priority} />
-                    </td>
-                    <td className="px-4 py-3 text-sm text-right">
-                      {lead.estimatedValue != null
-                        ? `$${lead.estimatedValue.toLocaleString()}`
-                        : "—"}
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-500">
                       {lead.lastContactedAt
@@ -364,11 +357,6 @@ export default function LeadsPage() {
                 )}
 
                 <div className="flex items-center justify-between text-xs text-gray-500 mt-2 pt-2 border-t">
-                  <span>
-                    {lead.estimatedValue != null
-                      ? `$${lead.estimatedValue.toLocaleString()}`
-                      : "No estimate"}
-                  </span>
                   <span>
                     {lead.nextFollowUpAt ? (
                       <span className="flex items-center gap-1">

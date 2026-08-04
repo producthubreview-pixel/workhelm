@@ -63,7 +63,6 @@ export function LeadForm({
       state: "",
       zip: "",
       serviceRequested: "",
-      estimatedValue: null,
       source: "",
       status: "NEW",
       priority: "MEDIUM",
@@ -255,30 +254,6 @@ export function LeadForm({
         </div>
 
         <div className="grid md:grid-cols-3 gap-4">
-          <FormField
-            control={form.control}
-            name="estimatedValue"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Est. Job Value ($)</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    placeholder="0.00"
-                    value={field.value ?? ""}
-                    onChange={(e) =>
-                      field.onChange(
-                        e.target.value === "" ? null : parseFloat(e.target.value)
-                      )
-                    }
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
           <FormField
             control={form.control}
             name="status"
