@@ -11,7 +11,7 @@ export const leadFormSchema = z.object({
   zip: z.string().optional(),
   serviceRequested: z.string().optional(),
   source: z.string().optional(),
-  status: z.enum(["NEW", "CONTACTED", "ESTIMATE_NEEDED", "ESTIMATE_SENT", "FOLLOW_UP", "WON", "LOST"]),
+  status: z.enum(["NEW", "CONTACTED", "ESTIMATE_SENT", "WON", "LOST"]),
   priority: z.enum(["LOW", "MEDIUM", "HIGH"]),
   nextFollowUpAt: z.string().optional().nullable(),
   notes: z.string().optional(),
@@ -22,9 +22,7 @@ export type LeadFormValues = z.infer<typeof leadFormSchema>;
 export const STATUS_LABELS: Record<string, string> = {
   NEW: "New Lead",
   CONTACTED: "Contacted",
-  ESTIMATE_NEEDED: "Estimate Needed",
   ESTIMATE_SENT: "Estimate Sent",
-  FOLLOW_UP: "Follow-Up",
   WON: "Won",
   LOST: "Lost",
 };
@@ -32,9 +30,7 @@ export const STATUS_LABELS: Record<string, string> = {
 export const STATUS_COLORS: Record<string, string> = {
   NEW: "bg-blue-100 text-blue-800 border-blue-200",
   CONTACTED: "bg-cyan-100 text-cyan-800 border-cyan-200",
-  ESTIMATE_NEEDED: "bg-yellow-100 text-yellow-800 border-yellow-200",
   ESTIMATE_SENT: "bg-orange-100 text-orange-800 border-orange-200",
-  FOLLOW_UP: "bg-purple-100 text-purple-800 border-purple-200",
   WON: "bg-green-100 text-green-800 border-green-200",
   LOST: "bg-red-100 text-red-800 border-red-200",
 };
