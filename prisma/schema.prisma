@@ -41,8 +41,8 @@ enum FollowUpStatus {
 enum MessageTemplateCategory {
   NEW_LEAD
   ESTIMATE_SENT
-  FOLLOW_UP_1
-  FOLLOW_UP_2
+  ESTIMATE_UPDATED
+  FOLLOW_UP
   APPOINTMENT
   THANK_YOU
   REVIEW_REQUEST
@@ -210,6 +210,7 @@ model MessageTemplate {
   subject  String
   body     String
   category MessageTemplateCategory @default(NEW_LEAD)
+  enabled  Boolean                 @default(true)
   updatedAt DateTime               @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)

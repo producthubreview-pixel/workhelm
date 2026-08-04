@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { leadFormSchema } from "@/lib/lead-schema";
+import { sendTemplateEmail } from "@/lib/email";
 
 export async function GET(
   req: NextRequest,
@@ -108,6 +109,29 @@ export async function PUT(
     await db.followUp.deleteMany({
       where: { leadId: id, userId, status: "OPEN" },
     });
+  }
+
+  // Job won → send the thank-you template. Email failure must never break the
+  // update response (sendTemplateEmail never throws).
+  if (updated.status === "WON" && lead.status !== "WON" && updated.email) {
+    try {
+      const user = await db.user.findUnique({
+        where: { id: userId },
+        select: { businessName: true },
+      });
+      await sendTemplateEmail(
+        "THANK_YOU",
+        updated.email,
+        [updated.firstName, updated.lastName].filter(Boolean).join(" ") || updated.firstName,
+        {
+          "{{business}}": user?.businessName || "our team",
+          "{{service}}": updated.serviceRequested || "recent job",
+        },
+        userId
+      );
+    } catch (error) {
+      console.error("Failed to send thank-you email:", error);
+    }
   }
 
   return NextResponse.json(updated);
