@@ -76,11 +76,14 @@ export async function GET() {
       take: 10,
     }),
 
-    // Estimates awaiting response
+    // Estimates awaiting response — only those still linked to a lead or a
+    // customer. Estimates with both links null are orphans (e.g. left over
+    // from a lead deletion before the cascade was fixed) and show nowhere.
     db.estimate.findMany({
       where: {
         userId,
         status: { in: ["SENT", "FOLLOW_UP_DUE"] },
+        OR: [{ leadId: { not: null } }, { customerId: { not: null } }],
       },
       include: {
         customer: { select: { id: true, name: true, phone: true, email: true } },
@@ -115,7 +118,11 @@ export async function GET() {
       where: { userId, status: "OPEN", dueAt: { lt: now } },
     }),
     db.estimate.count({
-      where: { userId, status: { in: ["SENT", "FOLLOW_UP_DUE"] } },
+      where: {
+        userId,
+        status: { in: ["SENT", "FOLLOW_UP_DUE"] },
+        OR: [{ leadId: { not: null } }, { customerId: { not: null } }],
+      },
     }),
     db.lead.count({
       where: { userId, estimatedValue: { not: null }, status: { notIn: ["WON", "LOST"] } },
