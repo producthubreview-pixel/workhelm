@@ -28,6 +28,7 @@ async function sendDueFollowUpsUnsafe(userId?: string): Promise<{ processed: num
       estimate: {
         include: {
           customer: { select: { name: true, email: true } },
+          lead: { select: { firstName: true, lastName: true, email: true } },
           user: { select: { businessName: true } },
         },
       },
@@ -48,10 +49,15 @@ async function sendDueFollowUpsUnsafe(userId?: string): Promise<{ processed: num
   for (const followUp of followUps) {
     const estimate = followUp.estimate;
     const lead = followUp.lead;
-    const recipient = estimate
+    // An estimate can link to a customer or (before conversion) directly to a
+    // lead — resolve the recipient from whichever is present.
+    const estimateContact = estimate?.customer ?? estimate?.lead ?? null;
+    const recipient = estimate && estimateContact
       ? {
-          email: estimate.customer.email,
-          name: estimate.customer.name,
+          email: estimateContact.email,
+          name: "name" in estimateContact
+            ? estimateContact.name
+            : [estimateContact.firstName, estimateContact.lastName].filter(Boolean).join(" "),
           business: estimate.user.businessName,
           service: estimate.title,
           expires: estimate.expiresAt ? estimate.expiresAt.toLocaleDateString() : "the stated expiration date",

@@ -125,8 +125,8 @@ export async function PUT(
     const recipientEmail = updated.customer?.email ?? updated.lead?.email;
     const recipientName =
       updated.customer?.name ??
-      [updated.lead?.firstName, updated.lead?.lastName].filter(Boolean).join(" ") ||
-      "there";
+      ([updated.lead?.firstName, updated.lead?.lastName].filter(Boolean).join(" ") ||
+        "there");
     if (recipientEmail) {
       try {
         const amount =

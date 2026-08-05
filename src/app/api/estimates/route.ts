@@ -146,8 +146,8 @@ export async function POST(req: NextRequest) {
   const recipientEmail = estimate.customer?.email ?? estimate.lead?.email;
   const recipientName =
     estimate.customer?.name ??
-    [estimate.lead?.firstName, estimate.lead?.lastName].filter(Boolean).join(" ") ||
-    "there";
+    ([estimate.lead?.firstName, estimate.lead?.lastName].filter(Boolean).join(" ") ||
+      "there");
   if (recipientEmail) {
     try {
       const amount =
