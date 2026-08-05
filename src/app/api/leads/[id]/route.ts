@@ -158,8 +158,12 @@ export async function DELETE(
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  // Clean up associated records before deleting the lead
+  // Clean up associated records before deleting the lead. Estimates and
+  // follow-ups linked to the lead are deleted outright — otherwise the lead's
+  // `onDelete: SetNull` would orphan them (an estimate with neither a lead nor
+  // a customer is invisible everywhere in the app).
   await db.followUp.deleteMany({ where: { leadId: id } });
+  await db.estimate.deleteMany({ where: { leadId: id } });
 
   await db.lead.delete({ where: { id } });
 
