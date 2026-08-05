@@ -43,6 +43,7 @@ export async function PATCH(
     data: updateData,
     include: {
       customer: { select: { id: true, name: true, phone: true, email: true } },
+      lead: { select: { id: true, firstName: true, lastName: true, phone: true, email: true } },
     },
   });
 

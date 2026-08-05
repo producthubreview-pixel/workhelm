@@ -57,7 +57,14 @@ type Estimate = {
     name: string;
     phone: string | null;
     email: string | null;
-  };
+  } | null;
+  lead: {
+    id: string;
+    firstName: string;
+    lastName: string | null;
+    phone: string | null;
+    email: string | null;
+  } | null;
   followUps: FollowUp[];
 };
 
@@ -166,7 +173,8 @@ export default function EstimateDetailPage() {
         title,
         dueAt: dueDate,
         estimateId: estimate!.id,
-        customerId: estimate!.customer.id,
+        customerId: estimate!.customer?.id ?? null,
+        leadId: estimate!.lead?.id ?? null,
       }),
     });
 
@@ -206,6 +214,17 @@ export default function EstimateDetailPage() {
   }
 
   if (!estimate) return null;
+
+  const contactName = estimate.customer
+    ? estimate.customer.name
+    : estimate.lead
+      ? [estimate.lead.firstName, estimate.lead.lastName].filter(Boolean).join(" ")
+      : "—";
+  const contactHref = estimate.customer
+    ? `/app/customers/${estimate.customer.id}`
+    : estimate.lead
+      ? `/app/leads/${estimate.lead.id}`
+      : null;
 
   const canModify =
     estimate.status !== "ACCEPTED" &&
@@ -250,12 +269,18 @@ export default function EstimateDetailPage() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">{estimate.title}</h1>
-            <Link
-              href={`/app/customers/${estimate.customer.id}`}
-              className="text-sm text-primary hover:underline flex items-center gap-1 mt-1"
-            >
-              <User className="h-3 w-3" /> {estimate.customer.name}
-            </Link>
+            {contactHref ? (
+              <Link
+                href={contactHref}
+                className="text-sm text-primary hover:underline flex items-center gap-1 mt-1"
+              >
+                <User className="h-3 w-3" /> {contactName}
+              </Link>
+            ) : (
+              <p className="text-sm text-gray-500 flex items-center gap-1 mt-1">
+                <User className="h-3 w-3" /> {contactName}
+              </p>
+            )}
           </div>
           <div className="flex items-center gap-2">
             <EstimateStatusBadge status={estimate.status} />
@@ -365,44 +390,83 @@ export default function EstimateDetailPage() {
           </CardContent>
         </Card>
 
-        {/* Customer Card */}
+        {/* Contact Card (linked customer or lead) */}
         <Card className="lg:col-span-1">
           <CardHeader className="pb-2">
             <h2 className="font-semibold text-gray-900 flex items-center gap-2">
-              <User className="h-4 w-4 text-gray-400" /> Customer
+              <User className="h-4 w-4 text-gray-400" />
+              {estimate.customer ? "Customer" : "Lead"}
             </h2>
           </CardHeader>
           <CardContent className="space-y-3">
-            <Link
-              href={`/app/customers/${estimate.customer.id}`}
-              className="font-medium text-primary hover:underline block"
-            >
-              {estimate.customer.name}
-            </Link>
-            {estimate.customer.phone && (
-              <div className="flex items-center gap-2 text-sm">
-                <Phone className="h-4 w-4 text-gray-400 shrink-0" />
-                <a
-                  href={`tel:${estimate.customer.phone}`}
-                  className="text-primary hover:underline"
-                >
-                  {estimate.customer.phone}
-                </a>
-              </div>
+            {contactHref ? (
+              <Link
+                href={contactHref}
+                className="font-medium text-primary hover:underline block"
+              >
+                {contactName}
+              </Link>
+            ) : (
+              <p className="font-medium text-gray-900 block">{contactName}</p>
             )}
-            {estimate.customer.email && (
-              <div className="flex items-center gap-2 text-sm">
-                <Mail className="h-4 w-4 text-gray-400 shrink-0" />
-                <a
-                  href={`mailto:${estimate.customer.email}`}
-                  className="text-primary hover:underline break-all"
-                >
-                  {estimate.customer.email}
-                </a>
-              </div>
-            )}
-            {!estimate.customer.phone && !estimate.customer.email && (
-              <p className="text-sm text-gray-500">No contact info.</p>
+            {estimate.customer ? (
+              <>
+                {estimate.customer.phone && (
+                  <div className="flex items-center gap-2 text-sm">
+                    <Phone className="h-4 w-4 text-gray-400 shrink-0" />
+                    <a
+                      href={`tel:${estimate.customer.phone}`}
+                      className="text-primary hover:underline"
+                    >
+                      {estimate.customer.phone}
+                    </a>
+                  </div>
+                )}
+                {estimate.customer.email && (
+                  <div className="flex items-center gap-2 text-sm">
+                    <Mail className="h-4 w-4 text-gray-400 shrink-0" />
+                    <a
+                      href={`mailto:${estimate.customer.email}`}
+                      className="text-primary hover:underline break-all"
+                    >
+                      {estimate.customer.email}
+                    </a>
+                  </div>
+                )}
+                {!estimate.customer.phone && !estimate.customer.email && (
+                  <p className="text-sm text-gray-500">No contact info.</p>
+                )}
+              </>
+            ) : estimate.lead ? (
+              <>
+                {estimate.lead.phone && (
+                  <div className="flex items-center gap-2 text-sm">
+                    <Phone className="h-4 w-4 text-gray-400 shrink-0" />
+                    <a
+                      href={`tel:${estimate.lead.phone}`}
+                      className="text-primary hover:underline"
+                    >
+                      {estimate.lead.phone}
+                    </a>
+                  </div>
+                )}
+                {estimate.lead.email && (
+                  <div className="flex items-center gap-2 text-sm">
+                    <Mail className="h-4 w-4 text-gray-400 shrink-0" />
+                    <a
+                      href={`mailto:${estimate.lead.email}`}
+                      className="text-primary hover:underline break-all"
+                    >
+                      {estimate.lead.email}
+                    </a>
+                  </div>
+                )}
+                {!estimate.lead.phone && !estimate.lead.email && (
+                  <p className="text-sm text-gray-500">No contact info.</p>
+                )}
+              </>
+            ) : (
+              <p className="text-sm text-gray-500">No linked lead or customer.</p>
             )}
           </CardContent>
         </Card>
