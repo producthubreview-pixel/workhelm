@@ -57,7 +57,8 @@ type EstimateRel = {
   declinedReason: string | null;
   createdAt: string;
   expiresAt: string | null;
-  customer: { id: string; name: string; phone: string | null; email: string | null };
+  customer: { id: string; name: string; phone: string | null; email: string | null } | null;
+  lead: { id: string; firstName: string; lastName: string | null; phone: string | null; email: string | null } | null;
 };
 
 type LeadEstimateRel = Lead & { type: "lead" };
@@ -441,7 +442,7 @@ export default function TodayPage() {
               estimate={est}
               onAccept={() => markEstimate(est.id, "ACCEPTED")}
               onDecline={() => { setDeclineDialog({ open: true, estimateId: est.id }); setDeclineReason(""); }}
-              onScheduleFollowUp={() => openFollowUpDialog({ estimateId: est.id, customerId: est.customer.id })}
+              onScheduleFollowUp={() => openFollowUpDialog({ estimateId: est.id, customerId: est.customer?.id ?? undefined, leadId: est.lead?.id ?? undefined })}
               isActioning={actioning.has(est.id)}
             />
           ))}
@@ -799,7 +800,10 @@ function EstimateCard({
         <div className="min-w-0">
           <p className="font-medium text-sm text-gray-900 truncate">{estimate.title}</p>
           <p className="text-xs text-gray-500">
-            {estimate.customer.name}
+            {estimate.customer?.name ??
+              (estimate.lead
+                ? `${estimate.lead.firstName} ${estimate.lead.lastName || ""}`.trim()
+                : "—")}
             {estimate.amount != null && ` · ${formatCurrency(estimate.amount)}`}
           </p>
         </div>

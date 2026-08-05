@@ -22,11 +22,22 @@ export async function GET(_req: NextRequest) {
   const leads = await db.lead.findMany({
     where: { userId: session.user.id },
     orderBy: { updatedAt: "desc" },
-    include: { customer: { include: { estimates: true } } },
+    include: {
+      customer: { include: { estimates: true } },
+      estimates: true,
+    },
   });
 
   const cards = leads.map((lead) => {
-    const estimates = lead.customer?.estimates ?? [];
+    // Estimates can link to a lead directly (leadId) or via the lead's
+    // converted customer — merge both sources and dedupe by estimate id.
+    const estimates = [
+      ...(lead.customer?.estimates ?? []),
+      ...lead.estimates,
+    ].filter(
+      (estimate, index, all) =>
+        all.findIndex((e) => e.id === estimate.id) === index
+    );
     const pendingEstimates = estimates.filter((estimate) =>
       PENDING_ESTIMATE_STATUSES.includes(estimate.status as (typeof PENDING_ESTIMATE_STATUSES)[number])
     );

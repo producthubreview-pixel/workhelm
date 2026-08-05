@@ -22,6 +22,8 @@ export async function GET(req: NextRequest) {
     where.OR = [
       { title: { contains: search, mode: "insensitive" } },
       { customer: { name: { contains: search, mode: "insensitive" } } },
+      { lead: { firstName: { contains: search, mode: "insensitive" } } },
+      { lead: { lastName: { contains: search, mode: "insensitive" } } },
     ];
   }
 
@@ -35,6 +37,9 @@ export async function GET(req: NextRequest) {
     include: {
       customer: {
         select: { id: true, name: true },
+      },
+      lead: {
+        select: { id: true, firstName: true, lastName: true },
       },
       followUps: {
         select: { id: true },
@@ -67,16 +72,34 @@ export async function POST(req: NextRequest) {
   }
 
   const data = parsed.data;
+  const customerId = data.customerId || null;
+  const leadId = data.leadId || null;
 
-  // Verify customer belongs to user
-  const customer = await db.customer.findUnique({
-    where: { id: data.customerId },
-  });
-  if (!customer || customer.userId !== userId) {
+  // Exactly one of lead/customer must link the estimate (mutually exclusive).
+  if (leadId && customerId) {
     return NextResponse.json(
-      { error: "Customer not found" },
+      { error: "An estimate can link to a lead or a customer, not both" },
       { status: 400 }
     );
+  }
+
+  // Verify the linked entity belongs to this user.
+  if (customerId) {
+    const customer = await db.customer.findUnique({
+      where: { id: customerId },
+    });
+    if (!customer || customer.userId !== userId) {
+      return NextResponse.json(
+        { error: "Customer not found" },
+        { status: 400 }
+      );
+    }
+  }
+  if (leadId) {
+    const lead = await db.lead.findUnique({ where: { id: leadId } });
+    if (!lead || lead.userId !== userId) {
+      return NextResponse.json({ error: "Lead not found" }, { status: 400 });
+    }
   }
 
   // Sent estimates are followed up three days later by default, matching the
@@ -87,7 +110,8 @@ export async function POST(req: NextRequest) {
   const estimate = await db.estimate.create({
     data: {
       userId,
-      customerId: data.customerId,
+      customerId,
+      leadId,
       title: data.title,
       amount: data.amount ?? null,
       expiresAt: data.expiresAt ? new Date(data.expiresAt) : null,
@@ -97,27 +121,34 @@ export async function POST(req: NextRequest) {
     },
     include: {
       customer: { select: { id: true, name: true, email: true } },
+      lead: { select: { id: true, firstName: true, lastName: true, email: true } },
       user: { select: { businessName: true } },
     },
   });
 
   // Schedule both follow-ups at creation time. Their category is explicit so
-  // edits to other follow-ups cannot change which message gets sent.
+  // edits to other follow-ups cannot change which message gets sent. The
+  // follow-up links to whichever entity the estimate links to.
   const followUpOneAt = new Date();
   followUpOneAt.setDate(followUpOneAt.getDate() + 3);
   const followUpTwoAt = new Date();
   followUpTwoAt.setDate(followUpTwoAt.getDate() + 10);
   await db.followUp.createMany({
     data: [
-      { userId, estimateId: estimate.id, customerId: estimate.customerId, title: "Follow-Up #1", dueAt: followUpOneAt, templateCategory: "FOLLOW_UP", status: "OPEN" },
-      { userId, estimateId: estimate.id, customerId: estimate.customerId, title: "Follow-Up #2", dueAt: followUpTwoAt, templateCategory: "FOLLOW_UP", status: "OPEN" },
+      { userId, estimateId: estimate.id, customerId, leadId, title: "Follow-Up #1", dueAt: followUpOneAt, templateCategory: "FOLLOW_UP", status: "OPEN" },
+      { userId, estimateId: estimate.id, customerId, leadId, title: "Follow-Up #2", dueAt: followUpTwoAt, templateCategory: "FOLLOW_UP", status: "OPEN" },
     ],
   });
 
   // Email delivery failures must not prevent the estimate from being created.
   // sendTemplateEmail never throws and returns false when the template is
   // disabled or delivery fails — the response is unaffected either way.
-  if (estimate.customer.email) {
+  const recipientEmail = estimate.customer?.email ?? estimate.lead?.email;
+  const recipientName =
+    estimate.customer?.name ??
+    ([estimate.lead?.firstName, estimate.lead?.lastName].filter(Boolean).join(" ") ||
+      "there");
+  if (recipientEmail) {
     try {
       const amount =
         estimate.amount == null
@@ -125,8 +156,8 @@ export async function POST(req: NextRequest) {
           : `${estimate.amount.toFixed(2)}`;
       await sendTemplateEmail(
         "ESTIMATE_SENT",
-        estimate.customer.email,
-        estimate.customer.name,
+        recipientEmail,
+        recipientName,
         {
           "{{business}}": estimate.user.businessName || "our team",
           "{{service}}": estimate.title,

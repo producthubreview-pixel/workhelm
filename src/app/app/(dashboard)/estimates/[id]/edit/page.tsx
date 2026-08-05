@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { EstimateForm } from "@/components/estimates/estimate-form";
+import { EstimateForm, type LeadOption, type CustomerOption } from "@/components/estimates/estimate-form";
 import { useToast } from "@/components/ui/use-toast";
 import type { EstimateFormValues } from "@/lib/estimate-schema";
 
@@ -12,7 +12,8 @@ export default function EditEstimatePage() {
   const router = useRouter();
   const params = useParams();
   const { toast } = useToast();
-  const [customers, setCustomers] = useState<{ id: string; name: string }[]>([]);
+  const [customers, setCustomers] = useState<CustomerOption[]>([]);
+  const [leads, setLeads] = useState<LeadOption[]>([]);
   const [defaultValues, setDefaultValues] = useState<Partial<EstimateFormValues> | undefined>();
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -20,8 +21,9 @@ export default function EditEstimatePage() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const [customersRes, estimateRes] = await Promise.all([
+        const [customersRes, leadsRes, estimateRes] = await Promise.all([
           fetch("/api/customers?archived=false"),
+          fetch("/api/leads"),
           fetch(`/api/estimates/${params.id}`),
         ]);
 
@@ -29,11 +31,29 @@ export default function EditEstimatePage() {
           const data = await customersRes.json();
           setCustomers(data.map((c: any) => ({ id: c.id, name: c.name })));
         }
+        if (leadsRes.ok) {
+          const data = await leadsRes.json();
+          setLeads(
+            data.map((l: any) => ({
+              id: l.id,
+              firstName: l.firstName,
+              lastName: l.lastName ?? null,
+              phone: l.phone ?? null,
+              email: l.email ?? null,
+              serviceRequested: l.serviceRequested ?? null,
+            }))
+          );
+        }
 
         if (estimateRes.ok) {
           const est = await estimateRes.json();
+          // Restore whichever link the estimate has. If both are set (lead was
+          // converted after the estimate was created), the customer wins — the
+          // estimate's own leadId can be cleared without losing the link, since
+          // the customer still points back at the lead.
           setDefaultValues({
-            customerId: est.customerId,
+            leadId: est.customerId ? "" : (est.leadId || ""),
+            customerId: est.customerId || "",
             title: est.title,
             amount: est.amount,
             expiresAt: est.expiresAt
@@ -112,6 +132,7 @@ export default function EditEstimatePage() {
         <h1 className="text-xl font-bold text-gray-900 mb-6">Edit Estimate</h1>
         <EstimateForm
           customers={customers}
+          leads={leads}
           defaultValues={defaultValues}
           onSubmit={handleSubmit}
           submitLabel="Update Estimate"

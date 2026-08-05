@@ -67,5 +67,13 @@ export async function POST(req: NextRequest) {
     },
   });
 
+  // Estimates created while this contact was still a lead keep their leadId
+  // (so pipeline history stays intact) AND gain the new customerId so they
+  // show up on the customer's record and in customer-linked views.
+  await db.estimate.updateMany({
+    where: { userId, leadId: lead.id },
+    data: { customerId: customer.id },
+  });
+
   return NextResponse.json(customer, { status: 201 });
 }

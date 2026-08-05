@@ -1,12 +1,21 @@
 import { z } from "zod";
 
-export const estimateFormSchema = z.object({
-  customerId: z.string().min(1, "Customer is required"),
-  title: z.string().min(1, "Title is required"),
-  amount: z.number().positive("Must be positive").optional().nullable(),
-  expiresAt: z.string().optional().or(z.literal("")),
-  notes: z.string().optional().or(z.literal("")),
-});
+// An estimate must link to exactly one of: a lead (before conversion) or a
+// customer (after conversion). The form keeps them mutually exclusive; the
+// API enforces the same rule.
+export const estimateFormSchema = z
+  .object({
+    leadId: z.string().optional().or(z.literal("")),
+    customerId: z.string().optional().or(z.literal("")),
+    title: z.string().min(1, "Title is required"),
+    amount: z.number().positive("Must be positive").optional().nullable(),
+    expiresAt: z.string().optional().or(z.literal("")),
+    notes: z.string().optional().or(z.literal("")),
+  })
+  .refine((data) => Boolean(data.leadId) || Boolean(data.customerId), {
+    message: "Select a lead or a customer",
+    path: ["customerId"],
+  });
 
 export type EstimateFormValues = z.infer<typeof estimateFormSchema>;
 

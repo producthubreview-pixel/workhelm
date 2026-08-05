@@ -45,9 +45,16 @@ type Estimate = {
   expiresAt: string | null;
   nextFollowUpAt: string | null;
   notes: string | null;
-  customer: { id: string; name: string };
+  customer: { id: string; name: string } | null;
+  lead: { id: string; firstName: string; lastName: string | null } | null;
   followUpCount: number;
 };
+
+function estimateContactName(est: Estimate): string {
+  if (est.customer) return est.customer.name;
+  if (est.lead) return [est.lead.firstName, est.lead.lastName].filter(Boolean).join(" ");
+  return "—";
+}
 
 export default function EstimatesPage() {
   const router = useRouter();
@@ -152,7 +159,7 @@ export default function EstimatesPage() {
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
           <Input
-            placeholder="Search title, customer name..."
+            placeholder="Search title, lead or customer name..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-9"
@@ -244,7 +251,7 @@ export default function EstimatesPage() {
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-600">
                       <span className="flex items-center gap-1">
-                        <User className="h-3 w-3" /> {est.customer.name}
+                        <User className="h-3 w-3" /> {estimateContactName(est)}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-sm text-right">
@@ -363,7 +370,7 @@ export default function EstimatesPage() {
                       {est.title}
                     </p>
                     <p className="text-sm text-gray-500 flex items-center gap-1 mt-0.5">
-                      <User className="h-3 w-3" /> {est.customer.name}
+                      <User className="h-3 w-3" /> {estimateContactName(est)}
                     </p>
                   </div>
                   <DropdownMenu>

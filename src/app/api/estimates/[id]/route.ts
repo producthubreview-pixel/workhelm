@@ -21,6 +21,9 @@ export async function GET(
       customer: {
         select: { id: true, name: true, phone: true, email: true },
       },
+      lead: {
+        select: { id: true, firstName: true, lastName: true, phone: true, email: true },
+      },
       followUps: {
         orderBy: { dueAt: "desc" },
       },
@@ -60,11 +63,21 @@ export async function PUT(
   }
 
   const data = parsed.data;
+  const customerId = data.customerId || null;
+  const leadId = data.leadId || null;
 
-  // Verify customer belongs to user if changed
-  if (data.customerId !== estimate.customerId) {
+  // Exactly one of lead/customer must link the estimate (mutually exclusive).
+  if (leadId && customerId) {
+    return NextResponse.json(
+      { error: "An estimate can link to a lead or a customer, not both" },
+      { status: 400 }
+    );
+  }
+
+  // Verify the newly linked entity belongs to this user if it changed.
+  if (customerId && customerId !== estimate.customerId) {
     const customer = await db.customer.findUnique({
-      where: { id: data.customerId },
+      where: { id: customerId },
     });
     if (!customer || customer.userId !== session.user.id) {
       return NextResponse.json(
@@ -73,20 +86,28 @@ export async function PUT(
       );
     }
   }
+  if (leadId && leadId !== estimate.leadId) {
+    const lead = await db.lead.findUnique({ where: { id: leadId } });
+    if (!lead || lead.userId !== session.user.id) {
+      return NextResponse.json({ error: "Lead not found" }, { status: 400 });
+    }
+  }
 
   // Only send an "estimate updated" email when something the customer sees
-  // actually changed (title, amount, expiration, or the customer it belongs to).
+  // actually changed (title, amount, expiration, or the entity it belongs to).
   const meaningfulChange =
     data.title !== estimate.title ||
     (data.amount ?? null) !== estimate.amount ||
     (data.expiresAt ? new Date(data.expiresAt).getTime() : null) !==
       (estimate.expiresAt ? estimate.expiresAt.getTime() : null) ||
-    data.customerId !== estimate.customerId;
+    customerId !== estimate.customerId ||
+    leadId !== estimate.leadId;
 
   const updated = await db.estimate.update({
     where: { id },
     data: {
-      customerId: data.customerId,
+      customerId,
+      leadId,
       title: data.title,
       amount: data.amount ?? null,
       expiresAt: data.expiresAt ? new Date(data.expiresAt) : null,
@@ -94,31 +115,39 @@ export async function PUT(
     },
     include: {
       customer: { select: { id: true, name: true, email: true } },
+      lead: { select: { id: true, firstName: true, lastName: true, email: true } },
       user: { select: { businessName: true } },
     },
   });
 
   // Email delivery failures must not break the update response.
-  if (meaningfulChange && updated.customer.email) {
-    try {
-      const amount =
-        updated.amount == null ? "to be confirmed" : `${updated.amount.toFixed(2)}`;
-      await sendTemplateEmail(
-        "ESTIMATE_UPDATED",
-        updated.customer.email,
-        updated.customer.name,
-        {
-          "{{business}}": updated.user.businessName || "our team",
-          "{{service}}": updated.title,
-          "{{estimate_amount}}": amount,
-          "{{expires}}": updated.expiresAt
-            ? updated.expiresAt.toLocaleDateString()
-            : "the stated expiration date",
-        },
-        session.user.id
-      );
-    } catch (error) {
-      console.error("Failed to send estimate updated email:", error);
+  if (meaningfulChange) {
+    const recipientEmail = updated.customer?.email ?? updated.lead?.email;
+    const recipientName =
+      updated.customer?.name ??
+      ([updated.lead?.firstName, updated.lead?.lastName].filter(Boolean).join(" ") ||
+        "there");
+    if (recipientEmail) {
+      try {
+        const amount =
+          updated.amount == null ? "to be confirmed" : `${updated.amount.toFixed(2)}`;
+        await sendTemplateEmail(
+          "ESTIMATE_UPDATED",
+          recipientEmail,
+          recipientName,
+          {
+            "{{business}}": updated.user.businessName || "our team",
+            "{{service}}": updated.title,
+            "{{estimate_amount}}": amount,
+            "{{expires}}": updated.expiresAt
+              ? updated.expiresAt.toLocaleDateString()
+              : "the stated expiration date",
+          },
+          session.user.id
+        );
+      } catch (error) {
+        console.error("Failed to send estimate updated email:", error);
+      }
     }
   }
 

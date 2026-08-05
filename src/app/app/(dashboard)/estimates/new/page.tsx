@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { EstimateForm } from "@/components/estimates/estimate-form";
+import { EstimateForm, type LeadOption, type CustomerOption } from "@/components/estimates/estimate-form";
 import { useToast } from "@/components/ui/use-toast";
 import type { EstimateFormValues } from "@/lib/estimate-schema";
 
@@ -12,40 +12,71 @@ export default function NewEstimatePage() {
   const router = useRouter();
   const { toast } = useToast();
   const searchParams = useSearchParams();
-  const [customers, setCustomers] = useState<{ id: string; name: string }[]>([]);
-  const [loadingCustomers, setLoadingCustomers] = useState(true);
+  const [customers, setCustomers] = useState<CustomerOption[]>([]);
+  const [leads, setLeads] = useState<LeadOption[]>([]);
+  const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [defaultValues, setDefaultValues] = useState<Partial<EstimateFormValues>>({});
 
   useEffect(() => {
-    async function fetchCustomers() {
+    async function fetchData() {
       try {
-        const res = await fetch("/api/customers?archived=false");
-        if (res.ok) {
-          const data = await res.json();
-          const options = data.map((c: any) => ({ id: c.id, name: c.name }));
-          setCustomers(options);
-          const customerId = searchParams.get("customerId");
-          const leadId = searchParams.get("leadId");
-          const defaults: Partial<EstimateFormValues> = {};
-          if (customerId && options.some((c: { id: string }) => c.id === customerId)) defaults.customerId = customerId;
-          if (leadId) {
-            const leadRes = await fetch(`/api/leads/${leadId}`);
-            if (leadRes.ok) {
-              const lead = await leadRes.json();
-              if (lead.customer?.id) defaults.customerId = lead.customer.id;
-              if (lead.serviceRequested) defaults.title = lead.serviceRequested;
-            }
-          }
-          setDefaultValues(defaults);
+        const [customersRes, leadsRes] = await Promise.all([
+          fetch("/api/customers?archived=false"),
+          fetch("/api/leads"),
+        ]);
+
+        const customerOptions: CustomerOption[] = [];
+        if (customersRes.ok) {
+          const data = await customersRes.json();
+          customerOptions.push(...data.map((c: any) => ({ id: c.id, name: c.name })));
         }
+        setCustomers(customerOptions);
+
+        const leadOptions: LeadOption[] = [];
+        if (leadsRes.ok) {
+          const data = await leadsRes.json();
+          leadOptions.push(
+            ...data.map((l: any) => ({
+              id: l.id,
+              firstName: l.firstName,
+              lastName: l.lastName ?? null,
+              phone: l.phone ?? null,
+              email: l.email ?? null,
+              serviceRequested: l.serviceRequested ?? null,
+            }))
+          );
+        }
+        setLeads(leadOptions);
+
+        const customerId = searchParams.get("customerId");
+        const leadId = searchParams.get("leadId");
+        const defaults: Partial<EstimateFormValues> = {};
+        if (customerId && customerOptions.some((c) => c.id === customerId)) {
+          defaults.customerId = customerId;
+        }
+        if (leadId) {
+          const leadRes = await fetch(`/api/leads/${leadId}`);
+          if (leadRes.ok) {
+            const lead = await leadRes.json();
+            // If the lead was already converted, link the estimate to its
+            // customer instead (matches the previous customer-only behavior).
+            if (lead.customer?.id) {
+              defaults.customerId = lead.customer.id;
+            } else {
+              defaults.leadId = leadId;
+            }
+            if (lead.serviceRequested) defaults.title = lead.serviceRequested;
+          }
+        }
+        setDefaultValues(defaults);
       } catch (err) {
-        console.error("Failed to fetch customers:", err);
+        console.error("Failed to fetch estimate form data:", err);
       } finally {
-        setLoadingCustomers(false);
+        setLoading(false);
       }
     }
-    fetchCustomers();
+    fetchData();
   }, [searchParams]);
 
   async function handleSubmit(values: EstimateFormValues) {
@@ -74,7 +105,7 @@ export default function NewEstimatePage() {
     }
   }
 
-  if (loadingCustomers) {
+  if (loading) {
     return (
       <div>
         <Link
@@ -103,6 +134,7 @@ export default function NewEstimatePage() {
         <h1 className="text-xl font-bold text-gray-900 mb-6">Create & Send Estimate</h1>
         <EstimateForm
           customers={customers}
+          leads={leads}
           defaultValues={defaultValues}
           onSubmit={handleSubmit}
           submitLabel="Create & Send"
