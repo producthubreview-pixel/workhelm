@@ -126,19 +126,36 @@ export async function POST(req: NextRequest) {
     },
   });
 
-  // Schedule both follow-ups at creation time. Their category is explicit so
-  // edits to other follow-ups cannot change which message gets sent. The
-  // follow-up links to whichever entity the estimate links to.
-  const followUpOneAt = new Date();
-  followUpOneAt.setDate(followUpOneAt.getDate() + 3);
-  const followUpTwoAt = new Date();
-  followUpTwoAt.setDate(followUpTwoAt.getDate() + 10);
-  await db.followUp.createMany({
-    data: [
-      { userId, estimateId: estimate.id, customerId, leadId, title: "Follow-Up #1", dueAt: followUpOneAt, templateCategory: "FOLLOW_UP", status: "OPEN" },
-      { userId, estimateId: estimate.id, customerId, leadId, title: "Follow-Up #2", dueAt: followUpTwoAt, templateCategory: "FOLLOW_UP", status: "OPEN" },
-    ],
+  // Keep the linked lead's pipeline stage in sync with the estimate lifecycle.
+  if (leadId) {
+    await db.lead.update({
+      where: { id: leadId },
+      data: { status: "ESTIMATE_SENT" },
+    });
+  }
+
+  // Keep an existing follow-up if one is already scheduled. Otherwise, create
+  // the single default follow-up for the end of the day three days from now.
+  const existingFollowUp = await db.followUp.findFirst({
+    where: { estimateId: estimate.id, userId },
   });
+  if (!existingFollowUp) {
+    const followUpDueAt = new Date();
+    followUpDueAt.setDate(followUpDueAt.getDate() + 3);
+    followUpDueAt.setHours(23, 59, 59, 999);
+    await db.followUp.create({
+      data: {
+        userId,
+        estimateId: estimate.id,
+        customerId,
+        leadId,
+        title: "Estimate follow-up",
+        dueAt: followUpDueAt,
+        templateCategory: "FOLLOW_UP",
+        status: "OPEN",
+      },
+    });
+  }
 
   // Email delivery failures must not prevent the estimate from being created.
   // sendTemplateEmail never throws and returns false when the template is
