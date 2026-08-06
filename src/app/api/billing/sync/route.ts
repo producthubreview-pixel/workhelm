@@ -61,8 +61,8 @@ export async function POST() {
     plan,
     subscriptionStatus: newStatus,
     canceled: isCanceled,
-    currentPeriodEnd: subscription.current_period_end
-      ? new Date(subscription.current_period_end * 1000).toISOString()
+    currentPeriodEnd: subscription.items.data[0]?.current_period_end
+      ? new Date(subscription.items.data[0].current_period_end * 1000).toISOString()
       : null,
   });
 }

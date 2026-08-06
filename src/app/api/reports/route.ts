@@ -61,17 +61,16 @@ export async function GET(req: NextRequest) {
       var estimatesDeclined = 0;
     }
 
+    let pipelineValue = 0;
     try {
-      var pipelineValueResult = await db.lead.aggregate({
+      const pipelineValueResult = await db.lead.aggregate({
         where: { userId, status: { notIn: ["WON", "LOST"] } },
         _sum: { estimatedValue: true },
       });
+      pipelineValue = pipelineValueResult._sum.estimatedValue ?? 0;
     } catch (e) {
       console.error("Pipeline value error:", e);
-      var pipelineValueResult = { _sum: { estimatedValue: null } };
     }
-
-    const pipelineValue = pipelineValueResult._sum.estimatedValue ?? 0;
 
   return NextResponse.json({
     totalLeads,

@@ -153,6 +153,19 @@ export default function SettingsPage() {
     }
   }, [profileForm]);
 
+  // Fetch billing status
+  const fetchBillingStatus = useCallback(async () => {
+    try {
+      const res = await fetch("/api/billing/status");
+      if (res.ok) {
+        const data = await res.json();
+        setBillingStatus(data);
+      }
+    } catch (err) {
+      console.error("Failed to refresh billing status:", err);
+    }
+  }, []);
+
   // Fetch billing history
   const fetchHistory = useCallback(async () => {
     setHistoryLoading(true);
