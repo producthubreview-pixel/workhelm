@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { sendDueFollowUps } from "@/lib/follow-up-sender";
 
 export async function GET() {
   const session = await auth();
@@ -10,13 +9,12 @@ export async function GET() {
   }
 
   const userId = session.user.id;
-  // Dashboard visits are the MVP trigger for due automated follow-ups. Keep
-  // this best-effort so reporting still loads if an email provider is down.
-  try {
-    await sendDueFollowUps(userId);
-  } catch (error) {
-    console.error("Failed to process due follow-ups:", error);
-  }
+
+  // NOTE: Due follow-ups are intentionally NOT auto-sent here. The business
+  // model is copy-to-clipboard templates only — no automated email sending —
+  // so follow-ups past their due date must stay OPEN and show as Overdue until
+  // the user acts on them. If scheduled sending is ever wanted later, wire
+  // src/lib/follow-up-sender.ts to a cron job behind a feature flag.
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
