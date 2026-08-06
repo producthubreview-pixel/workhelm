@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   Users, Calendar, AlertTriangle, FileText,
-  Phone, CheckCircle, Clock, XCircle, ArrowRight,
+  CheckCircle, Clock, XCircle, ArrowRight,
   Plus, ChevronRight, RefreshCw, Loader2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -679,11 +679,6 @@ function LeadCard({
         <p className="text-xs text-gray-500 mb-1">{lead.serviceRequested}</p>
       )}
       <div className="flex flex-wrap gap-1.5">
-        {lead.phone && (
-          <a href={`tel:${lead.phone}`} className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-md bg-blue-50 text-blue-700 hover:bg-blue-100 transition">
-            <Phone className="h-3 w-3" /> Call
-          </a>
-        )}
         <button
           onClick={onContacted}
           disabled={isActioning}
