@@ -29,10 +29,15 @@ const navLinks = [
   { label: "Demo", href: "#demo" },
 ];
 
-function Logo() {
+function Logo({ className = "" }: { className?: string }) {
   return (
-    <a href="#top" className="flex shrink-0 items-center" aria-label="WorkHelm — back to top">
-      <img src="/logo.png" alt="WorkHelm" className="h-8 w-auto" />
+    <a
+      href="#top"
+      className={`inline-flex shrink-0 items-center font-sans font-bold tracking-tight ${className}`}
+      aria-label="WorkHelm — back to top"
+    >
+      <span className="text-[#172033]">Work</span>
+      <span className="text-[#2563EB]">Helm</span>
     </a>
   );
 }
@@ -58,7 +63,7 @@ function Nav({ businessName }: { businessName: string }) {
       }`}
     >
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <Logo />
+        <Logo className="text-2xl" />
 
         {/* Desktop nav */}
         <nav className="hidden items-center gap-8 md:flex" aria-label="Main">
@@ -276,32 +281,33 @@ function Home() {
       <Nav businessName={businessName} />
 
       {/* Hero */}
-      <section className="px-6 pt-20 pb-24 max-w-4xl mx-auto text-center">
-        <span className="inline-block rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-700 mb-6">
-          Built for local service businesses
-        </span>
-        <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl md:text-6xl max-w-3xl mx-auto leading-tight">
-          Win More Jobs Without Letting Follow-Up Fall Through the Cracks
-        </h1>
-        <p className="mt-6 text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
-          WorkHelm helps local service businesses organize leads, track estimates,
-          and know exactly who needs a follow-up — so more estimates turn into paying work.
-        </p>
-        <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
+      <section className="bg-[#F8FAFC] px-5 pb-24 pt-16 text-center sm:px-6 sm:pb-28 sm:pt-20 lg:pt-24">
+        <div className="mx-auto flex max-w-6xl flex-col items-center">
+          <Logo className="text-5xl sm:text-6xl lg:text-[72px]" />
+          <p className="mt-5 text-xs font-semibold uppercase tracking-[0.25em] text-[#2563EB] sm:text-sm lg:text-[18px]">
+            AI BUSINESS OPERATING SYSTEM FOR LOCAL SERVICE BUSINESSES
+          </p>
+          <h1 className="mt-10 max-w-5xl text-[clamp(3rem,8vw,5.625rem)] font-extrabold leading-[1.05] tracking-[-0.04em] text-[#020617]">
+            Run Your Business
+            <br />
+            Not Your Day
+          </h1>
+          <p className="mt-8 max-w-[1000px] text-lg font-normal leading-[1.6] text-[#475569] sm:text-xl lg:text-[24px]">
+            Capture every lead, send estimates, automate follow-ups, and keep every job moving from one simple dashboard. Built specifically for plumbers, electricians, HVAC, roofers, landscapers, cleaners, painters, and other local service businesses.
+          </p>
           <a
             href={SIGN_UP_URL}
-            className="inline-flex items-center justify-center rounded-lg bg-blue-600 px-8 py-3.5 text-base font-semibold text-white shadow-sm hover:bg-blue-700 transition-colors"
+            className="mt-10 inline-flex items-center justify-center rounded-[14px] bg-[#2563EB] px-8 py-5 text-lg font-bold text-white shadow-lg shadow-blue-500/25 transition-colors hover:bg-blue-700 sm:px-9 sm:text-xl"
           >
-            Start Free Trial
+            Start Free — No Credit Card Required&nbsp; →
           </a>
-          <a
-            href="#how-it-works"
-            className="inline-flex items-center justify-center rounded-lg bg-white px-8 py-3.5 text-base font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 transition-colors"
-          >
-            See How It Works
-          </a>
+          <ul className="mt-12 flex w-full max-w-5xl flex-col items-center justify-center gap-4 text-[15px] font-medium text-[#64748B] sm:text-base lg:flex-row lg:justify-between lg:gap-6">
+            <li><span className="text-[#2563EB]" aria-hidden="true">⚡</span> Setup in Under 5 Minutes</li>
+            <li><span className="text-[#2563EB]" aria-hidden="true">✓</span> No Credit Card Required</li>
+            <li><span className="text-[#2563EB]" aria-hidden="true">👥</span> Built for Local Service Businesses</li>
+            <li><span className="text-[#2563EB]" aria-hidden="true">✓</span> Cancel Anytime</li>
+          </ul>
         </div>
-        <p className="mt-4 text-sm text-gray-400">14-day free trial. No credit card required.</p>
       </section>
 
       {/* How it works */}
