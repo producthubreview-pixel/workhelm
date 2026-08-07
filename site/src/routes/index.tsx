@@ -203,6 +203,71 @@ const benefits = [
   },
 ];
 
+const steps = [
+  {
+    title: "Capture Every Lead",
+    description:
+      "Add a new lead manually or from a contact form. All new leads are stored in one place.",
+    icon: (
+      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 13.5h3.86a2.25 2.25 0 012.012 1.244l.256.512a2.25 2.25 0 002.013 1.244h3.218a2.25 2.25 0 002.013-1.244l.256-.512a2.25 2.25 0 012.013-1.244h3.859m-19.5.338V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18v-4.162c0-.224-.034-.447-.1-.661L19.24 5.338a2.25 2.25 0 00-2.15-1.588H6.911a2.25 2.25 0 00-2.15 1.588L2.35 13.177a2.25 2.25 0 00-.1.661z" />
+      </svg>
+    ),
+  },
+  {
+    title: "Send Professional Estimates",
+    description:
+      "Create and send estimates in minutes. Track when they are sent and viewed.",
+    icon: (
+      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+      </svg>
+    ),
+  },
+  {
+    title: "Automate Follow-Ups",
+    description:
+      "Schedule follow-ups or let WorkHelm remind you. Never let an estimate go cold.",
+    icon: (
+      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
+      </svg>
+    ),
+  },
+  {
+    title: "Keep Customers Organized",
+    description:
+      "Store customer information, notes, estimates, and history. Everything is searchable and easy to find.",
+    icon: (
+      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+      </svg>
+    ),
+  },
+  {
+    title: "Track Your Pipeline",
+    description:
+      "View every opportunity from New Lead to Won. Instantly see what needs attention.",
+    icon: (
+      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M4 5h16l-6.5 7.5V19l-3 1.5v-8L4 5z" />
+      </svg>
+    ),
+  },
+  {
+    title: "Win More Jobs",
+    description:
+      "Better follow-up leads to more accepted estimates. More organization means more revenue.",
+    icon: (
+      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M7 4h10v4.5a5 5 0 01-10 0V4z" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M7 5.5H5.5a2.75 2.75 0 003.5 3M17 5.5h1.5a2.75 2.75 0 01-3.5 3" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 13v4M9 17h6M8 21h8" />
+      </svg>
+    ),
+  },
+];
+
 function Home() {
   const businessName = Route.useLoaderData();
   return (
@@ -242,26 +307,84 @@ function Home() {
       <section id="how-it-works" className="px-6 py-24 bg-gray-50 scroll-mt-20">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl font-bold tracking-tight text-center text-gray-900 sm:text-4xl">
-            How It Works
+            Simple Steps. More Jobs Won.
           </h2>
           <p className="mt-4 text-center text-gray-600 max-w-2xl mx-auto">
-            Four simple steps from lead to paid work.
+            WorkHelm makes it easy to capture leads, follow up, and close more work—all in one simple platform.
           </p>
-          <div className="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-            {[
-              ["Capture Leads", "Add leads from calls, texts, or your website. Everything in one place."],
-              ["Send Estimates", "Create and send estimates in minutes. Track who's received them."],
-              ["Follow Up", "Know exactly who needs a follow-up today. Never let one slip."],
-              ["Win the Job", "Close more deals with timely, organized follow-up."],
-            ].map(([title, description], index) => (
-              <div key={title} className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-200">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-lg font-bold text-blue-600">
-                  {index + 1}
-                </div>
-                <h3 className="mt-4 text-lg font-semibold text-gray-900">{title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-gray-600">{description}</p>
-              </div>
-            ))}
+
+          {/* Timeline: horizontal flow on desktop, stacked on mobile */}
+          <div className="relative mt-16">
+            {/* Desktop connecting line (behind the numbered circles) */}
+            <div
+              aria-hidden="true"
+              className="absolute top-7 left-[8.33%] right-[8.33%] hidden lg:block border-t-2 border-dashed border-blue-200"
+            />
+
+            <ol className="relative grid gap-10 sm:grid-cols-2 lg:grid-cols-6 lg:gap-6">
+              {steps.map((step, index) => (
+                <li
+                  key={step.title}
+                  className="relative flex items-start gap-4 lg:block"
+                >
+                  {/* Mobile vertical connector to the next step */}
+                  {index < steps.length - 1 && (
+                    <span
+                      aria-hidden="true"
+                      className="absolute left-7 top-14 bottom-[-2.5rem] w-0.5 bg-blue-200 sm:hidden"
+                    />
+                  )}
+
+                  {/* Numbered circle (blue bg, white text) */}
+                  <div className="relative z-10 flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full bg-blue-600 text-lg font-bold text-white shadow-sm ring-4 ring-gray-50 lg:mx-auto">
+                    {index + 1}
+                  </div>
+
+                  {/* Desktop arrow connector between steps */}
+                  {index < steps.length - 1 && (
+                    <svg
+                      aria-hidden="true"
+                      className="absolute -right-4 top-5 hidden h-4 w-4 text-blue-300 lg:block"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={2.5}
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M8.25 4.5l7.5 7.5-7.5 7.5"
+                      />
+                    </svg>
+                  )}
+
+                  <div className="flex-1 rounded-xl bg-white p-5 shadow-sm ring-1 ring-gray-200 lg:mt-6">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 text-blue-600 lg:mx-auto">
+                      {step.icon}
+                    </div>
+                    <h3 className="mt-3 text-base font-semibold text-gray-900 lg:text-center">
+                      {step.title}
+                    </h3>
+                    <p className="mt-2 text-sm leading-relaxed text-gray-600 lg:text-center">
+                      {step.description}
+                    </p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </div>
+
+          {/* CTA */}
+          <div className="mt-16 text-center">
+            <h3 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
+              Ready to stop losing leads?
+            </h3>
+            <a
+              href="/signup"
+              className="mt-6 inline-flex items-center justify-center rounded-lg bg-blue-600 px-8 py-3.5 text-base font-semibold text-white shadow-sm hover:bg-blue-700 transition-colors"
+            >
+              Start Your Free Trial
+            </a>
           </div>
         </div>
       </section>
