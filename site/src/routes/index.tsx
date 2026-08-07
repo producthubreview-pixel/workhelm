@@ -22,8 +22,8 @@ export const Route = createFileRoute("/")({
 const SIGN_IN_URL = "https://workhelm-seven.vercel.app/login";
 
 const navLinks = [
-  { label: "How It Works", href: "#benefits" },
-  { label: "Why WorkHelm?", href: "#benefits" },
+  { label: "How It Works", href: "#how-it-works" },
+  { label: "Why WorkHelm?", href: "#why-workhelm" },
   { label: "Pricing", href: "#pricing" },
   { label: "Demo", href: "#demo" },
 ];
@@ -229,13 +229,41 @@ function Home() {
             Start Free Trial
           </a>
           <a
-            href="#benefits"
+            href="#how-it-works"
             className="inline-flex items-center justify-center rounded-lg bg-white px-8 py-3.5 text-base font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 transition-colors"
           >
             See How It Works
           </a>
         </div>
         <p className="mt-4 text-sm text-gray-400">14-day free trial. No credit card required.</p>
+      </section>
+
+      {/* How it works */}
+      <section id="how-it-works" className="px-6 py-24 bg-gray-50 scroll-mt-20">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-3xl font-bold tracking-tight text-center text-gray-900 sm:text-4xl">
+            How It Works
+          </h2>
+          <p className="mt-4 text-center text-gray-600 max-w-2xl mx-auto">
+            Four simple steps from lead to paid work.
+          </p>
+          <div className="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              ["Capture Leads", "Add leads from calls, texts, or your website. Everything in one place."],
+              ["Send Estimates", "Create and send estimates in minutes. Track who's received them."],
+              ["Follow Up", "Know exactly who needs a follow-up today. Never let one slip."],
+              ["Win the Job", "Close more deals with timely, organized follow-up."],
+            ].map(([title, description], index) => (
+              <div key={title} className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-200">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-lg font-bold text-blue-600">
+                  {index + 1}
+                </div>
+                <h3 className="mt-4 text-lg font-semibold text-gray-900">{title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-gray-600">{description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
       </section>
 
       {/* Demo */}
@@ -257,10 +285,10 @@ function Home() {
       </section>
 
       {/* Benefits */}
-      <section id="benefits" className="px-6 py-24 bg-gray-50 scroll-mt-20">
+      <section id="why-workhelm" className="px-6 py-24 bg-gray-50 scroll-mt-20">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl font-bold tracking-tight text-center text-gray-900 sm:text-4xl">
-            Everything you need to stay on top of follow-up
+            Why WorkHelm?
           </h2>
           <p className="mt-4 text-center text-gray-600 max-w-2xl mx-auto">
             Stop losing jobs because a follow-up slipped your mind. WorkHelm keeps every lead,
