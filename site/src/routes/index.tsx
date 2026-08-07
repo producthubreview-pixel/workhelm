@@ -20,6 +20,7 @@ export const Route = createFileRoute("/")({
 });
 
 const SIGN_IN_URL = "https://workhelm-seven.vercel.app/login";
+const SIGN_UP_URL = "https://workhelm-seven.vercel.app/signup";
 
 const navLinks = [
   { label: "How It Works", href: "#how-it-works" },
@@ -66,11 +67,11 @@ function Nav({ businessName }: { businessName: string }) {
               {link.label}
             </a>
           ))}
-          <a href="/login" className={linkClass}>
+          <a href={SIGN_IN_URL} className={linkClass}>
             Login
           </a>
           <a
-            href="/signup"
+            href={SIGN_UP_URL}
             className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-700"
           >
             Start Free
@@ -127,7 +128,7 @@ function Nav({ businessName }: { businessName: string }) {
               Login
             </a>
             <a
-              href="/signup"
+              href={SIGN_UP_URL}
               onClick={() => setOpen(false)}
               className="block rounded-lg bg-blue-600 px-3 py-2.5 text-center text-base font-semibold text-white transition-colors hover:bg-blue-700"
             >
@@ -288,7 +289,7 @@ function Home() {
         </p>
         <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
           <a
-            href="/signup"
+            href={SIGN_UP_URL}
             className="inline-flex items-center justify-center rounded-lg bg-blue-600 px-8 py-3.5 text-base font-semibold text-white shadow-sm hover:bg-blue-700 transition-colors"
           >
             Start Free Trial
@@ -380,7 +381,7 @@ function Home() {
               Ready to stop losing leads?
             </h3>
             <a
-              href="/signup"
+              href={SIGN_UP_URL}
               className="mt-6 inline-flex items-center justify-center rounded-lg bg-blue-600 px-8 py-3.5 text-base font-semibold text-white shadow-sm hover:bg-blue-700 transition-colors"
             >
               Start Your Free Trial
@@ -472,7 +473,7 @@ function Home() {
                 </li>
               </ul>
               <a
-                href="/signup?plan=starter"
+                href={`${SIGN_UP_URL}?plan=starter`}
                 className="mt-8 block text-center rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 transition-colors"
               >
                 Start Free Trial
@@ -512,7 +513,7 @@ function Home() {
                 </li>
               </ul>
               <a
-                href="/signup?plan=pro"
+                href={`${SIGN_UP_URL}?plan=pro`}
                 className="mt-8 block text-center rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 transition-colors"
               >
                 Start Free Trial
@@ -532,7 +533,7 @@ function Home() {
             Stop letting follow-up slip through the cracks. Start your free trial and see how WorkHelm helps you close more work.
           </p>
           <a
-            href="/signup"
+            href={SIGN_UP_URL}
             className="mt-8 inline-flex items-center justify-center rounded-lg bg-white px-8 py-3.5 text-base font-semibold text-blue-600 shadow-sm hover:bg-blue-50 transition-colors"
           >
             Start Your 14-Day Free Trial
