@@ -13,7 +13,10 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "My site" },
+      {
+        title:
+          "WorkHelm — Win More Jobs Without Letting Follow-Up Fall Through the Cracks",
+      },
     ],
     links: [{ rel: "stylesheet", href: appCss }],
   }),
