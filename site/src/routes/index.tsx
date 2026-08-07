@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { readFile } from "node:fs/promises";
@@ -17,6 +18,135 @@ export const Route = createFileRoute("/")({
   loader: () => getBusinessName(),
   component: Home,
 });
+
+const SIGN_IN_URL = "https://workhelm-seven.vercel.app/login";
+
+const navLinks = [
+  { label: "How It Works", href: "#benefits" },
+  { label: "Why WorkHelm", href: "#benefits" },
+  { label: "Pricing", href: "#pricing" },
+  { label: "Demo", href: "#demo" },
+];
+
+function Logo({ businessName }: { businessName: string }) {
+  const name = businessName || "WorkHelm";
+  const isWorkHelm = name === "WorkHelm";
+  return (
+    <a href="#top" className="flex shrink-0 items-center gap-2.5" aria-label="WorkHelm — back to top">
+      {/* Brand mark: blue rounded square with a white "W" */}
+      <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 shadow-sm shadow-blue-600/30">
+        <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="white" strokeWidth={2.6} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M3.5 5.5 L9 18.5 L12 12 L15 18.5 L20.5 5.5" />
+        </svg>
+      </span>
+      {/* Wordmark: Work in dark slate, Helm in brand blue */}
+      <span className="text-xl font-extrabold tracking-tight">
+        {isWorkHelm ? (
+          <>
+            <span className="text-slate-900">Work</span>
+            <span className="text-blue-600">Helm</span>
+          </>
+        ) : (
+          <span className="text-slate-900">{name}</span>
+        )}
+      </span>
+    </a>
+  );
+}
+
+function Nav({ businessName }: { businessName: string }) {
+  const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  const linkClass =
+    "text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors";
+
+  return (
+    <header
+      className={`sticky top-0 z-50 border-b border-slate-200/70 bg-white/90 backdrop-blur-xl transition-shadow ${
+        scrolled ? "shadow-md shadow-slate-900/5" : ""
+      }`}
+    >
+      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        <Logo businessName={businessName} />
+
+        {/* Desktop nav */}
+        <nav className="hidden items-center gap-8 md:flex" aria-label="Main">
+          {navLinks.map((link) => (
+            <a key={link.label} href={link.href} className={linkClass}>
+              {link.label}
+            </a>
+          ))}
+          <a
+            href={SIGN_IN_URL}
+            className="rounded-lg border border-blue-600/20 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 transition-colors hover:bg-blue-100"
+          >
+            Sign In
+          </a>
+        </nav>
+
+        {/* Mobile: hamburger toggle */}
+        <button
+          type="button"
+          className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-gray-700 transition-colors hover:bg-gray-100 md:hidden"
+          aria-expanded={open}
+          aria-controls="mobile-nav"
+          aria-label={open ? "Close menu" : "Open menu"}
+          onClick={() => setOpen((v) => !v)}
+        >
+          {open ? (
+            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          ) : (
+            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+            </svg>
+          )}
+        </button>
+      </div>
+
+      {/* Mobile menu panel */}
+      {open && (
+        <nav
+          id="mobile-nav"
+          className="border-t border-slate-200/70 bg-white px-4 py-4 md:hidden"
+          aria-label="Mobile"
+        >
+          <ul className="space-y-1">
+            {navLinks.map((link) => (
+              <li key={link.label}>
+                <a
+                  href={link.href}
+                  onClick={() => setOpen(false)}
+                  className="block rounded-lg px-3 py-2.5 text-base font-medium text-gray-700 transition-colors hover:bg-gray-50 hover:text-gray-900"
+                >
+                  {link.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+          <div className="mt-3 border-t border-slate-100 pt-3">
+            <a
+              href={SIGN_IN_URL}
+              onClick={() => setOpen(false)}
+              className="block rounded-lg bg-blue-600 px-3 py-2.5 text-center text-base font-semibold text-white transition-colors hover:bg-blue-700"
+            >
+              Sign In
+            </a>
+          </div>
+        </nav>
+      )}
+    </header>
+  );
+}
 
 const benefits = [
   {
@@ -84,25 +214,8 @@ const benefits = [
 function Home() {
   const businessName = Route.useLoaderData();
   return (
-    <div className="min-h-dvh">
-      {/* Nav */}
-      <nav className="flex items-center justify-between px-6 py-4 max-w-6xl mx-auto">
-        <span className="text-xl font-bold tracking-tight text-gray-900">
-          {businessName || "WorkHelm"}
-        </span>
-        <a
-          href="#demo"
-          className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
-        >
-          Demo
-        </a>
-        <a
-          href="/login"
-          className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
-        >
-          Sign In
-        </a>
-      </nav>
+    <div id="top" className="min-h-dvh">
+      <Nav businessName={businessName} />
 
       {/* Hero */}
       <section className="px-6 pt-20 pb-24 max-w-4xl mx-auto text-center">
@@ -134,7 +247,7 @@ function Home() {
       </section>
 
       {/* Demo */}
-      <section id="demo" className="px-6 py-24">
+      <section id="demo" className="px-6 py-24 scroll-mt-20">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-3xl font-bold tracking-tight text-center text-gray-900 sm:text-4xl">
             See WorkHelm in Action
@@ -152,7 +265,7 @@ function Home() {
       </section>
 
       {/* Benefits */}
-      <section id="benefits" className="px-6 py-24 bg-gray-50">
+      <section id="benefits" className="px-6 py-24 bg-gray-50 scroll-mt-20">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl font-bold tracking-tight text-center text-gray-900 sm:text-4xl">
             Everything you need to stay on top of follow-up
@@ -176,7 +289,7 @@ function Home() {
       </section>
 
       {/* Pricing */}
-      <section className="px-6 py-24">
+      <section id="pricing" className="px-6 py-24 scroll-mt-20">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-3xl font-bold tracking-tight text-center text-gray-900 sm:text-4xl">
             Simple, predictable pricing
