@@ -122,7 +122,7 @@ export async function POST(req: NextRequest) {
     include: {
       customer: { select: { id: true, name: true, email: true } },
       lead: { select: { id: true, firstName: true, lastName: true, email: true } },
-      user: { select: { businessName: true } },
+      user: { select: { businessName: true, email: true } },
     },
   });
 
@@ -183,7 +183,8 @@ export async function POST(req: NextRequest) {
             ? estimate.expiresAt.toLocaleDateString()
             : "the stated expiration date",
         },
-        userId
+        userId,
+        estimate.user.email ?? undefined
       );
     } catch (error) {
       console.error("Failed to send estimate email:", error);

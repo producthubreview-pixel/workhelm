@@ -33,7 +33,7 @@ export async function PATCH(
     include: {
       customer: { select: { id: true, name: true, phone: true, email: true, lead: { select: { id: true } } } },
       lead: { select: { id: true, firstName: true, lastName: true, email: true } },
-      user: { select: { businessName: true } },
+      user: { select: { businessName: true, email: true } },
     },
   });
   // Sending an estimate should have exactly one automatic follow-up. Reuse an
@@ -84,7 +84,8 @@ export async function PATCH(
             ? updated.expiresAt.toLocaleDateString()
             : "the stated expiration date",
         },
-        session.user.id
+        session.user.id,
+        updated.user.email ?? undefined
       );
     } catch (error) {
       console.error("Failed to send estimate email:", error);

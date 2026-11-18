@@ -13,9 +13,10 @@ interface SendEmailParams {
   body?: string;
   /** Use html for system emails such as verification links. */
   html?: string;
+  replyTo?: string;
 }
 
-export async function sendEmail({ to, subject, body, html }: SendEmailParams): Promise<boolean> {
+export async function sendEmail({ to, subject, body, html, replyTo }: SendEmailParams): Promise<boolean> {
   const emailHtml = html || (body || "").split(/\n\s*\n/).map((paragraph) => `<p>${paragraph.replaceAll("\n", "<br />")}</p>`).join("");
   if (!process.env.RESEND_API_KEY) {
     console.log(`[EMAIL DISABLED] Would send to ${to}: ${subject}`);
@@ -29,6 +30,7 @@ export async function sendEmail({ to, subject, body, html }: SendEmailParams): P
       to,
       subject,
       html: emailHtml,
+      replyTo: replyTo || undefined,
     });
 
     if (error) {
@@ -58,7 +60,8 @@ export async function sendTemplateEmail(
   recipientEmail: string,
   recipientName: string,
   variables: Record<string, string>,
-  userId?: string
+  userId?: string,
+  replyTo?: string
 ): Promise<boolean> {
   try {
     let template: { subject: string; body: string; enabled?: boolean } | null = null;
@@ -91,6 +94,7 @@ export async function sendTemplateEmail(
       to: recipientEmail,
       subject: fillTemplate(template.subject, data),
       body: fillTemplate(template.body, data),
+      replyTo,
     });
   } catch (error) {
     console.error(`Failed to send ${category} template email to ${recipientEmail}:`, error);
